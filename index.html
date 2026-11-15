@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif 8 Tim Gerak & Gaya - MTsN 1 Kota Malang</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js untuk efek suara interaktif tanpa file eksternal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts Comic Neue sebagai cadangan webfont mirip Comic Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Pengaturan Font Utama menggunakan Comic Sans MS sesuai permintaan */
+        body, button, input, select, textarea {
+            font-family: 'Comic Sans MS', 'Comic Neue', 'Chalkboard SE', cursive, sans-serif;
+        }
+
+        /* Background gradasi Oranye - Biru */
+        .bg-orange-blue-theme {
+            background: linear-gradient(135deg, #fed7aa 0%, #ffedd5 32%, #e0f2fe 68%, #93c5fd 100%);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+
+        .btn-game {
+            transition: all 0.15s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
+        }
+        .btn-game:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-orange-blue-theme min-h-screen text-slate-800 flex flex-col justify-between selection:bg-orange-200">
+
+    <!-- HEADER APLIKASI (GRADASI BIRU - ORANYE) -->
+    <header class="bg-gradient-to-r from-blue-800 via-blue-700 to-orange-600 text-white shadow-lg border-b-4 border-orange-400 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <!-- Ikon Roket SVG -->
+                <div class="bg-orange-400 text-blue-950 p-2.5 rounded-2xl shadow-md animate-float border-2 border-white/60">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-wide text-orange-200 drop-shadow">ARENA SAINS 8 TIM: GERAK & GAYA</h1>
+                    <p class="text-xs sm:text-sm text-blue-100">IPA Kelas VII • MTsN 1 Kota Malang • Ibu Siti Fatimah, S.Pd</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="toggleSound()" id="btnSound" class="bg-blue-950/60 hover:bg-blue-950 text-white px-3 py-2 rounded-xl text-sm font-bold border border-blue-300/40 flex items-center gap-1.5 transition" title="Suara Efek">
+                    <span id="soundIcon">🔊</span>
+                    <span class="hidden sm:inline">Suara</span>
+                </button>
+                <button onclick="openTeacherModal()" class="bg-orange-400 hover:bg-orange-300 text-blue-950 px-4 py-2 rounded-xl text-sm sm:text-base font-bold shadow-md btn-game flex items-center gap-1.5 border border-white/50">
+                    <span>🔐</span>
+                    <span>Ruang Guru & Pembahasan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6">
+
+        <!-- LAYAR 1: LOBBY / PILIH 8 TIM & ATURAN MAIN -->
+        <section id="screenLobby" class="animate-pop space-y-6">
+            <!-- Banner Informasi Permainan -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-blue-300">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div class="space-y-2 max-w-3xl">
+                        <span class="inline-block bg-gradient-to-r from-orange-100 to-blue-100 text-blue-900 border border-orange-300 text-sm font-bold px-3.5 py-1 rounded-full">
+                            📚 Referensi: Buku IPA SMP/MTs Kelas VII Bab IV (Edisi Revisi)
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-blue-950">
+                            Kompetisi Cerdas Cermat IPA — 8 Tim (200 Soal Unik)
+                        </h2>
+                        <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+                            Masing-masing dari <strong>8 Tim</strong> mendapatkan paket <strong>25 soal berbeda</strong> (tidak ada soal yang sama antar-tim) dan diacak otomatis!
+                        </p>
+                    </div>
+
+                    <!-- Kotak Aturan Skor -->
+                    <div class="bg-gradient-to-br from-orange-50 to-blue-50 border-2 border-orange-300 rounded-2xl p-4 w-full lg:w-auto shrink-0 shadow-sm">
+                        <h3 class="font-bold text-blue-950 text-base mb-2 border-b border-orange-200 pb-1">⚖️ Aturan Penilaian Otomatis:</h3>
+                        <ul class="space-y-1.5 text-base">
+                            <li class="flex items-center gap-2 text-blue-800 font-bold">
+                                <span class="bg-blue-200/80 text-blue-950 px-2 py-0.5 rounded-lg">+5 Poin</span> Jawaban Benar
+                            </li>
+                            <li class="flex items-center gap-2 text-orange-700 font-bold">
+                                <span class="bg-orange-200/80 text-orange-950 px-2 py-0.5 rounded-lg">-1 Poin</span> Jawaban Salah
+                            </li>
+                            <li class="flex items-center gap-2 text-slate-700 font-bold">
+                                <span class="bg-white border border-slate-300 px-2 py-0.5 rounded-lg">🔒 Rahasia</span> Kunci jawaban disembunyikan saat kuis
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRID KARTU 8 TIM -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="teamCardsContainer">
+                <!-- 8 Kartu Tim dirender otomatis via JS -->
+            </div>
+
+            <!-- Tombol Reset Semua Permainan -->
+            <div class="flex justify-center pt-4">
+                <button onclick="confirmResetAll()" class="bg-white/80 hover:bg-white text-slate-700 hover:text-orange-700 px-5 py-2.5 rounded-2xl text-sm font-bold shadow border border-slate-300 flex items-center gap-1.5 transition">
+                    <span>🔄</span> Reset Seluruh Data & Skor 8 Tim
+                </button>
+            </div>
+        </section>
+
+        <!-- LAYAR 2: ARENA KUIS TIM -->
+        <section id="screenQuiz" class="hidden animate-pop space-y-5">
+            <!-- Bar Status Tim & Progres -->
+            <div class="bg-white/95 rounded-3xl p-4 sm:p-5 shadow-lg border-2 border-blue-300 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div id="quizTeamBadge" class="px-4 py-2 rounded-2xl font-bold text-white text-lg sm:text-xl shadow">
+                        TIM 1
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500 font-bold">Progres Pengerjaan</p>
+                        <p id="quizProgressText" class="text-lg sm:text-xl font-bold text-blue-950">Soal 1 dari 25</p>
+                    </div>
+                </div>
+
+                <!-- Skor Tim Saat Ini -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-orange-50 border-2 border-orange-400 px-5 py-2 rounded-2xl text-center shadow-inner">
+                        <span class="block text-xs font-bold text-orange-800 uppercase">Skor Otomatis</span>
+                        <span id="quizCurrentScore" class="text-2xl sm:text-3xl font-bold text-orange-600">0</span>
+                    </div>
+                    <button onclick="backToLobby()" class="bg-blue-100 hover:bg-blue-200 text-blue-900 px-4 py-3 rounded-2xl font-bold text-sm sm:text-base transition border border-blue-300">
+                        ⏸️ Jeda / Menu 8 Tim
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar Visual -->
+            <div class="w-full bg-white/80 rounded-full h-4 overflow-hidden shadow-inner border border-blue-200">
+                <div id="quizProgressBar" class="bg-gradient-to-r from-blue-600 to-orange-500 h-4 rounded-full transition-all duration-500" style="width: 4%"></div>
+            </div>
+
+            <!-- Kotak Soal & Opsi Jawaban (UKURAN HURUF BESAR & COMIC SANS) -->
+            <div id="questionCard" class="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl border-2 border-orange-300 relative overflow-hidden">
+                <!-- Label Topik Materi -->
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                    <span id="questionTopic" class="bg-blue-100 text-blue-900 border border-blue-200 px-4 py-1.5 rounded-full text-sm sm:text-base font-bold">
+                        📘 Topik: Gerak dan Gaya
+                    </span>
+                    <span id="questionNumberPill" class="bg-orange-100 text-orange-900 border border-orange-200 px-4 py-1.5 rounded-full text-sm sm:text-base font-bold">
+                        Soal ke-1 / 25
+                    </span>
+                </div>
+
+                <!-- Kalimat Soal (Ukuran Besar agar sangat jelas terbaca di kelas) -->
+                <div class="bg-gradient-to-r from-blue-50/70 to-orange-50/70 rounded-2xl p-5 sm:p-8 border-2 border-blue-200/80 mb-7">
+                    <p id="questionText" class="text-2xl sm:text-3xl lg:text-[32px] font-bold text-slate-900 leading-snug sm:leading-relaxed">
+                        Memuat soal...
+                    </p>
+                </div>
+
+                <!-- 4 Opsi Jawaban (Ukuran Besar & Jelas) -->
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    <!-- Opsi A, B, C, D dirender di sini -->
+                </div>
+
+                <!-- Overlay Umpan Balik Transisi Otomatis (TANPA MEMBOCORKAN JAWABAN BENAR) -->
+                <div id="feedbackOverlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20 animate-pop">
+                    <div id="feedbackIcon" class="text-6xl sm:text-7xl mb-3">✅</div>
+                    <h3 id="feedbackTitle" class="text-3xl sm:text-4xl font-bold mb-2">Jawaban Tercatat!</h3>
+                    <p id="feedbackPoints" class="text-2xl sm:text-3xl font-bold px-6 py-2 rounded-2xl mb-3">+5 Poin</p>
+                    <p class="text-slate-600 text-lg sm:text-xl font-bold">Berpindah otomatis ke soal berikutnya...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAYAR 3: HASIL AKHIR TIM SETELAH 25 SOAL -->
+        <section id="screenTeamResult" class="hidden animate-pop max-w-3xl mx-auto">
+            <div class="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl border-4 border-orange-400 text-center space-y-6">
+                <div class="text-6xl sm:text-7xl">🏆</div>
+                <div>
+                    <span id="resultTeamName" class="inline-block bg-blue-600 text-white px-5 py-1.5 rounded-full text-xl font-bold mb-2">
+                        TIM 1
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-blue-950">Misi 25 Soal Selesai!</h2>
+                    <p class="text-lg text-slate-600 mt-1">Hebat! Seluruh soal paket timmu telah diselesaikan.</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 sm:gap-5 bg-slate-50 p-5 rounded-2xl border-2 border-blue-200">
+                    <div class="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-300">
+                        <span class="block text-sm font-bold text-blue-900">Benar (+5)</span>
+                        <span id="resCorrectCount" class="text-3xl sm:text-4xl font-bold text-blue-600">0</span>
+                    </div>
+                    <div class="bg-orange-50 p-3 sm:p-4 rounded-xl border border-orange-300">
+                        <span class="block text-sm font-bold text-orange-900">Salah (-1)</span>
+                        <span id="resWrongCount" class="text-3xl sm:text-4xl font-bold text-orange-600">0</span>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-600 to-orange-500 text-white p-3 sm:p-4 rounded-xl shadow">
+                        <span class="block text-sm font-bold text-orange-100">Total Skor</span>
+                        <span id="resTotalScore" class="text-3xl sm:text-4xl font-bold">0</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-blue-950 text-base sm:text-lg font-bold">
+                    🔒 Kunci jawaban dan pembahasan detail tersimpan terpisah di <strong>Ruang Guru</strong> untuk dibahas bersama Ibu Siti Fatimah, S.Pd.
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="backToLobby()" class="bg-gradient-to-r from-blue-700 to-orange-600 hover:opacity-95 text-white text-xl font-bold px-8 py-4 rounded-2xl shadow-lg btn-game w-full sm:w-auto">
+                        ⬅️ Kembali ke Papan Skor 8 Tim
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL RUANG GURU (KUNCI JAWABAN, PEMBAHASAN & HASIL KOREKSI 8 TIM) -->
+    <div id="teacherModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+        <div class="bg-white rounded-3xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl border-2 border-orange-400 overflow-hidden animate-pop">
+            
+            <!-- Header Modal Guru -->
+            <div class="bg-gradient-to-r from-blue-900 to-orange-700 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">👩‍🏫</span>
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-orange-200">Ruang Guru — Ibu Siti Fatimah, S.Pd</h3>
+                        <p class="text-xs sm:text-sm text-blue-100">Kunci Jawaban, Pembahasan 200 Soal & Lembar Koreksi 8 Tim</p>
+                    </div>
+                </div>
+                <button onclick="closeTeacherModal()" class="bg-white/20 hover:bg-rose-600 text-white px-3.5 py-1.5 rounded-xl font-bold text-base transition">
+                    ✖ Tutup
+                </button>
+            </div>
+
+            <!-- Layar Login PIN Guru -->
+            <div id="teacherPinScreen" class="p-8 sm:p-12 text-center space-y-5 my-auto">
+                <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner border border-orange-300">
+                    🔑
+                </div>
+                <h4 class="text-2xl font-bold text-blue-950">Masukkan PIN Akses Guru</h4>
+                <p class="text-slate-600 max-w-md mx-auto">
+                    Kunci jawaban dan pembahasan dipisahkan di halaman ini agar tidak terlihat siswa saat kuis 8 tim berlangsung.
+                </p>
+                <div class="max-w-xs mx-auto space-y-3">
+                    <input type="password" id="teacherPinInput" maxlength="6" placeholder="Ketik PIN (Default: 1234)" 
+                           class="w-full text-center text-2xl tracking-widest font-bold border-2 border-blue-300 focus:border-orange-500 rounded-2xl px-4 py-3 outline-none"
+                           onkeydown="if(event.key==='Enter') verifyTeacherPin()">
+                    <p id="pinErrorMsg" class="hidden text-rose-600 text-sm font-bold">PIN salah! Gunakan PIN default: 1234</p>
+                    <button onclick="verifyTeacherPin()" class="w-full bg-gradient-to-r from-blue-700 to-orange-600 text-white font-bold text-lg py-3 rounded-2xl shadow btn-game">
+                        Buka Kunci & Pembahasan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konten Terbuka Ruang Guru -->
+            <div id="teacherContentScreen" class="hidden flex-col flex-grow overflow-hidden">
+                <!-- Tab Navigasi Guru -->
+                <div class="bg-slate-100 px-4 sm:px-6 pt-3 border-b border-slate-200 flex flex-wrap gap-2">
+                    <button onclick="switchTeacherTab('koreksi')" id="tabBtnKoreksi" class="px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base bg-white text-blue-800 border-t-2 border-x border-slate-200">
+                        📋 Hasil Koreksi & Pembahasan Per Tim
+                    </button>
+                    <button onclick="switchTeacherTab('banksoal')" id="tabBtnBank" class="px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base text-slate-600 hover:text-slate-900">
+                        📚 Seluruh Bank Soal (200 Soal Unik + Kunci)
+                    </button>
+                </div>
+
+                <!-- Tab 1: Koreksi & Pembahasan Per Tim -->
+                <div id="teacherTabKoreksi" class="p-4 sm:p-6 overflow-y-auto space-y-5 flex-grow">
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-blue-50 to-orange-50 p-4 rounded-2xl border border-blue-200">
+                        <div class="space-y-2">
+                            <span class="font-bold text-blue-950 block">Pilih Tim (1–8) untuk Dikoreksi:</span>
+                            <div class="flex flex-wrap gap-2" id="teacherTeamSelector">
+                                <!-- Tombol Tim 1 - 8 -->
+                            </div>
+                        </div>
+                        <button onclick="exportReportText()" class="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow transition">
+                            📋 Salin Laporan Nilai 8 Tim
+                        </button>
+                    </div>
+
+                    <div id="teacherTeamDetailContainer" class="space-y-4">
+                        <!-- Detail koreksi per soal tim dirender di sini -->
+                    </div>
+                </div>
+
+                <!-- Tab 2: Master Bank Soal 200 Butir -->
+                <div id="teacherTabBank" class="hidden p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+                        <p class="text-slate-700 font-bold">Total 200 Soal Unik (25 soal berbeda untuk setiap Tim 1 hingga Tim 8).</p>
+                        <select id="filterBankTeam" onchange="renderMasterBank()" class="border-2 border-blue-300 rounded-xl px-3 py-2 font-bold text-blue-950">
+                            <option value="all">Semua Paket (200 Soal)</option>
+                            <option value="0">Paket Soal Tim 1 (Soal 1 - 25)</option>
+                            <option value="1">Paket Soal Tim 2 (Soal 26 - 50)</option>
+                            <option value="2">Paket Soal Tim 3 (Soal 51 - 75)</option>
+                            <option value="3">Paket Soal Tim 4 (Soal 76 - 100)</option>
+                            <option value="4">Paket Soal Tim 5 (Soal 101 - 125)</option>
+                            <option value="5">Paket Soal Tim 6 (Soal 126 - 150)</option>
+                            <option value="6">Paket Soal Tim 7 (Soal 151 - 175)</option>
+                            <option value="7">Paket Soal Tim 8 (Soal 176 - 200)</option>
+                        </select>
+                    </div>
+                    <div id="masterBankContainer" class="space-y-4">
+                        <!-- Master 200 soal dirender di sini -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI RESET & NOTIFIKASI KUSTOM -->
+    <div id="customDialog" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-orange-300 text-center space-y-4 animate-pop">
+            <div id="dialogIcon" class="text-5xl">⚠️</div>
+            <h3 id="dialogTitle" class="text-2xl font-bold text-blue-950">Konfirmasi</h3>
+            <p id="dialogMessage" class="text-slate-600 text-base sm:text-lg">Pesan konfirmasi...</p>
+            <div id="dialogActions" class="flex justify-center gap-3 pt-2">
+                <!-- Tombol dinamis -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/85 border-t border-blue-200 py-3 px-4 text-center text-xs sm:text-sm text-slate-600 font-bold">
+        Media Pembelajaran Interaktif IPA Kelas VII (8 Tim • 200 Soal Unik) • Bab IV: Gerak dan Gaya dalam Teknologi • MTsN 1 Kota Malang
+    </footer>
+
+    <script>
+        // =========================================================================
+        // 1. BANK SOAL 200 BUTIR UNIK (8 TIM × 25 SOAL BERBEDA)
+        // =========================================================================
+        const BASE_QUESTIONS_100 = [
+            // --- PAKET TIM 1 (No 1 - 25) ---
+            { id: 1, teamPool: 0, topic: "Perpindahan dan Jarak Tempuh", q: "Perubahan posisi benda dari titik awal ke titik akhir dengan memperhatikan arah geraknya disebut ....", options: ["Jarak tempuh", "Perpindahan", "Kelajuan", "Percepatan"], answer: 1, explanation: "Perpindahan adalah besar perubahan posisi dari posisi awal ke posisi akhir (besaran vektor), sedangkan jarak tempuh adalah panjang seluruh lintasan yang dilalui." },
+            { id: 2, teamPool: 0, topic: "Perpindahan dan Jarak Tempuh", q: "Panjang seluruh lintasan yang dilalui oleh suatu benda yang bergerak tanpa memperhatikan arah disebut ....", options: ["Perpindahan", "Posisi awal", "Jarak tempuh", "Titik acuan"], answer: 2, explanation: "Jarak tempuh merupakan panjang total lintasan yang dilalui benda dari awal hingga akhir bergerak tanpa memperhitungkan arah." },
+            { id: 3, teamPool: 0, topic: "Perpindahan dan Jarak Tempuh", q: "Andi berangkat dari rumah ke sekolah yang berjarak 100 meter. Setelah tiba di sekolah, ia pulang kembali ke rumah lewat jalan yang sama. Berapakah besar perpindahan Andi?", options: ["0 meter", "50 meter", "100 meter", "200 meter"], answer: 0, explanation: "Karena posisi akhir Andi kembali ke posisi awal keberangkatan (rumah), maka perubahan posisinya (perpindahan) bernilai 0 meter." },
+            { id: 4, teamPool: 0, topic: "Perpindahan dan Jarak Tempuh", q: "Budi berjalan dari rumah menuju masjid sejauh 150 meter, lalu kembali lagi ke rumah. Berapakah total jarak tempuh yang dilakukan Budi?", options: ["0 meter", "75 meter", "150 meter", "300 meter"], answer: 3, explanation: "Jarak tempuh menghitung seluruh lintasan yang dilalui: 150 m (pergi) + 150 m (pulang) = 300 meter." },
+            { id: 5, teamPool: 0, topic: "Gerak Relatif & Gerak Semu", q: "Sebuah benda dikatakan bergerak apabila mengalami perubahan kedudukan terhadap ....", options: ["Bentuk benda", "Titik acuan", "Massa benda", "Ukuran lintasan"], answer: 1, explanation: "Dalam sains, gerak didefinisikan sebagai perubahan jarak atau posisi suatu benda terhadap titik acuan yang dipilih." },
+            { id: 6, teamPool: 0, topic: "Gerak Relatif & Gerak Semu", q: "Saat kita naik kereta api yang melaju cepat, pohon-pohon di luar jendela tampak seolah-olah berlari mundur menjauhi kita. Peristiwa ini dinamakan ....", options: ["Gerak lurus beraturan", "Gerak dipercepat", "Gerak semu", "Gerak jatuh bebas"], answer: 2, explanation: "Gerak semu adalah benda yang sebenarnya diam (pohon), tetapi oleh pengamat yang berada dalam sistem bergerak (kereta) teramati seolah-olah bergerak." },
+            { id: 7, teamPool: 0, topic: "Kelajuan dan Kecepatan", q: "Perbandingan antara jarak tempuh total dengan selang waktu yang diperlukan benda untuk bergerak disebut ....", options: ["Percepatan", "Kelajuan", "Resultan gaya", "Kelembaman"], answer: 1, explanation: "Kelajuan dirumuskan sebagai v = s / t, yaitu hasil bagi antara jarak tempuh (s) dengan waktu tempuh (t)." },
+            { id: 8, teamPool: 0, topic: "Kelajuan dan Kecepatan", q: "Besaran gerak yang memiliki nilai besar, satuan, serta harus dinyatakan arah geraknya (besaran vektor) adalah ....", options: ["Jarak tempuh", "Kelajuan", "Waktu tempuh", "Kecepatan"], answer: 3, explanation: "Kecepatan adalah besarnya perpindahan tiap satuan waktu dan termasuk besaran vektor karena memiliki nilai serta arah." },
+            { id: 9, teamPool: 0, topic: "Kelajuan dan Kecepatan", q: "Seorang siswa berlari menempuh jarak 120 meter dalam waktu 20 sekon. Berapakah kelajuan siswa tersebut?", options: ["4 m/s", "6 m/s", "100 m/s", "2.400 m/s"], answer: 1, explanation: "Diketahui s = 120 m dan t = 20 s. Kelajuan v = s / t = 120 / 20 = 6 m/s." },
+            { id: 10, teamPool: 0, topic: "Percepatan", q: "Besaran yang menyatakan besarnya pertambahan atau perubahan kecepatan tiap satuan waktu disebut ....", options: ["Kelajuan rata-rata", "Perpindahan", "Percepatan", "Kelembaman"], answer: 2, explanation: "Percepatan (a) adalah perubahan kecepatan (vt - v0) dibagi selang waktu (t), dengan satuan m/s²." },
+            { id: 11, teamPool: 0, topic: "Percepatan", q: "Sebuah mobil yang sedang melaju kencang tiba-tiba direm hingga berhenti di depan lampu merah. Gerak mobil tersebut mengalami ....", options: ["Percepatan positif", "Perlambatan (percepatan negatif)", "Kecepatan konstan", "Gerak semu"], answer: 1, explanation: "Ketika kecepatan benda berkurang (seperti saat direm), benda mengalami gerak diperlambat sehingga nilai percepatannya (a) negatif." },
+            { id: 12, teamPool: 0, topic: "Percepatan", q: "Sepeda motor mula-mula diam (0 m/s), kemudian setelah 5 sekon kecepatannya menjadi 20 m/s. Berapakah percepatan sepeda motor tersebut?", options: ["2 m/s²", "4 m/s²", "15 m/s²", "100 m/s²"], answer: 1, explanation: "a = (vt - v0) / t = (20 - 0) / 5 = 20 / 5 = 4 m/s²." },
+            { id: 13, teamPool: 0, topic: "Konsep Gaya", q: "Tarikan atau dorongan yang dapat menyebabkan benda bergerak, berubah arah, berubah bentuk, atau berubah kecepatannya disebut ....", options: ["Massa", "Gaya", "Jarak", "Kelembaman"], answer: 1, explanation: "Gaya adalah sesuatu berupa dorongan atau tarikan yang memengaruhi keadaan gerak maupun bentuk benda." },
+            { id: 14, teamPool: 0, topic: "Resultan Gaya", q: "Dua orang siswa mendorong meja ke arah kanan dengan gaya masing-masing 40 N dan 50 N. Berapakah resultan gaya yang bekerja pada meja?", options: ["10 N ke kiri", "10 N ke kanan", "90 N ke kanan", "90 N ke kiri"], answer: 2, explanation: "Karena kedua gaya segaris dan searah (ke kanan), resultan gaya dijumlahkan: R = 40 N + 50 N = 90 N ke arah kanan." },
+            { id: 15, teamPool: 0, topic: "Resultan Gaya", q: "Dalam lomba tarik tambang, Tim A menarik ke kiri dengan gaya 300 N dan Tim B menarik ke kanan dengan gaya 300 N. Berapakah resultan gayanya?", options: ["0 N (tali diam)", "300 N ke kiri", "300 N ke kanan", "600 N ke kanan"], answer: 0, explanation: "Dua gaya yang sama besar dan berlawanan arah saling meniadakan: R = 300 N + (-300 N) = 0 N." },
+            { id: 16, teamPool: 0, topic: "Macam-Macam Gaya", q: "Anak panah dapat melesat jauh dari busurnya karena memanfaatkan jenis gaya ....", options: ["Gaya magnet", "Gaya pegas", "Gaya listrik", "Gaya gravitasi"], answer: 1, explanation: "Busur panah yang ditarik menyimpan energi elastis dan menghasilkan gaya pegas untuk melontarkan anak panah." },
+            { id: 17, teamPool: 0, topic: "Gaya Gesek", q: "Gaya yang timbul akibat dua permukaan benda yang saling bersentuhan dan arahnya selalu berlawanan dengan arah gerak benda adalah ....", options: ["Gaya gravitasi", "Gaya otot", "Gaya gesek", "Gaya mesin"], answer: 2, explanation: "Gaya gesek muncul di antara dua permukaan yang bersentuhan dan arahnya selalu menghambat atau berlawanan dengan arah gerak benda." },
+            { id: 18, teamPool: 0, topic: "Gaya Gesek", q: "Gaya gesek yang bekerja pada saat suatu benda didorong tetapi benda tersebut belum bergerak sama sekali disebut ....", options: ["Gaya gesek kinetis", "Gaya gesek statis", "Gaya pegas", "Gaya aksi-reaksi"], answer: 1, explanation: "Gaya gesek statis terjadi selama benda masih diam (belum bergerak), yang besarnya lebih besar daripada gaya gesek kinetis." },
+            { id: 19, teamPool: 0, topic: "Gaya Gesek", q: "Salah satu contoh penerapan gaya gesek yang menguntungkan dalam kehidupan sehari-hari adalah ....", options: ["Gir dan rantai motor yang aus", "Alur karet pada sol sepatu agar tidak terpeleset", "Gesekan udara menghambat laju mobil balap", "Mesin kendaraan cepat panas akibat gesekan"], answer: 1, explanation: "Sol sepatu dari karet beralur memperbesar gaya gesek dengan lantai sehingga pemakainya tidak mudah terpeleset." },
+            { id: 20, teamPool: 0, topic: "Gaya Gesek", q: "Kereta api cepat Shinkansen di Jepang dirancang melayang di atas rel magnet dengan tujuan utama untuk ....", options: ["Memperbesar gaya gravitasi", "Menghilangkan gaya gesek antara kereta dan rel", "Menambah massa kereta", "Mengurangi gaya magnet"], answer: 1, explanation: "Rel magnet mengangkat kereta sedikit dari lintasan sehingga menghilangkan gaya gesek mekanis dan kereta dapat melaju sangat cepat." },
+            { id: 21, teamPool: 0, topic: "Hukum I Newton", q: "Kecenderungan suatu benda untuk mempertahankan keadaan diamnya atau mempertahankan gerak lurus beraturannya disebut ....", options: ["Percepatan", "Kelembaman (inersia)", "Gaya gesek", "Resultan gaya"], answer: 1, explanation: "Hukum I Newton membahas sifat kelembaman (inersia), yaitu kecenderungan benda mempertahankan keadaan geraknya jika resultan gaya = 0." },
+            { id: 22, teamPool: 0, topic: "Hukum I Newton", q: "Ketika bus yang melaju kencang tiba-tiba direm mendadak, tubuh penumpang akan terdorong ke depan. Peristiwa ini sesuai dengan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Hukum Gravitasi"], answer: 0, explanation: "Tubuh penumpang cenderung mempertahankan keadaan geraknya yang sedang melaju ke depan (sifat kelembaman / Hukum I Newton)." },
+            { id: 23, teamPool: 0, topic: "Hukum II Newton", q: "Sebuah balok bermassa 4 kg didorong sehingga mengalami percepatan sebesar 3 m/s². Berapakah besar gaya yang bekerja pada balok tersebut?", options: ["0,75 N", "1,33 N", "7 N", "12 N"], answer: 3, explanation: "Berdasarkan Hukum II Newton: F = m × a = 4 kg × 3 m/s² = 12 Newton." },
+            { id: 24, teamPool: 0, topic: "Hukum III Newton", q: "Saat petani mencangkul tanah, pacul menghantam tanah ke bawah (aksi) dan tangan petani merasakan gaya balik dari tanah ke atas (reaksi). Ini merupakan penerapan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Hukum Kekekalan Massa"], answer: 2, explanation: "Hukum III Newton (Hukum Aksi-Reaksi) menyatakan bahwa setiap gaya aksi menimbulkan gaya reaksi yang sama besar dan berlawanan arah." },
+            { id: 25, teamPool: 0, topic: "Teknologi Hukum Newton", q: "Prinsip kerja peluncuran roket luar angkasa maupun roket korek api bekerja berdasarkan penerapan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya Gesek Statis"], answer: 2, explanation: "Gas panas yang menyembur keluar ke bawah (gaya aksi) mendorong badan roket meluncur ke atas (gaya reaksi) sesuai Hukum III Newton." },
+
+            // --- PAKET TIM 2 (No 26 - 50) ---
+            { id: 26, teamPool: 1, topic: "Perpindahan dan Jarak Tempuh", q: "Dalam sumbu koordinat satu dimensi, jika posisi awal benda dilambangkan x₀ dan posisi akhir xₜ, rumus perpindahan (Δx) adalah ....", options: ["Δx = x₀ + xₜ", "Δx = xₜ - x₀", "Δx = x₀ × xₜ", "Δx = xₜ / x₀"], answer: 1, explanation: "Besar perpindahan adalah selisih posisi akhir dikurangi posisi awal: Δx = xₜ - x₀." },
+            { id: 27, teamPool: 1, topic: "Perpindahan dan Jarak Tempuh", q: "Rina melangkah ke kanan sejauh 100 m, lalu berbalik arah melangkah ke kiri sejauh 40 m. Berapakah besar perpindahan Rina dari posisi awal?", options: ["40 meter", "60 meter", "100 meter", "140 meter"], answer: 1, explanation: "Perpindahan = +100 m (ke kanan) - 40 m (ke kiri) = 60 meter ke kanan." },
+            { id: 28, teamPool: 1, topic: "Perpindahan dan Jarak Tempuh", q: "Seorang pelari mengelilingi lapangan berbentuk lingkaran sebanyak 1 putaran penuh dan berhenti tepat di garis start. Pernyataan yang tepat adalah ....", options: ["Jarak tempuh = 0, perpindahan = keliling lingkaran", "Jarak tempuh = keliling lingkaran, perpindahan = 0", "Jarak tempuh dan perpindahan sama-sama nol", "Perpindahan lebih besar daripada jarak tempuh"], answer: 1, explanation: "Jarak tempuh sama dengan panjang lintasan (keliling lingkaran), sedangkan perpindahan = 0 karena kembali ke titik awal." },
+            { id: 29, teamPool: 1, topic: "Gerak Relatif & Gerak Semu", q: "Mengapa gerak suatu benda dalam kehidupan sehari-hari dikatakan bersifat relatif?", options: ["Karena semua benda selalu bergerak lurus", "Karena status bergerak atau diamnya benda bergantung pada titik acuan dan pengamat", "Karena kecepatan benda selalu tetap", "Karena tidak dipengaruhi oleh gaya"], answer: 1, explanation: "Gerak bersifat relatif karena suatu benda bisa dianggap bergerak terhadap satu titik acuan, namun diam terhadap titik acuan lainnya." },
+            { id: 30, teamPool: 1, topic: "Gerak Relatif & Gerak Semu", q: "Dina duduk di dalam mobil yang sedang melaju bersama ibunya. Jika ibu Dina dijadikan sebagai titik acuan, maka Dina dikatakan ....", options: ["Bergerak cepat", "Bergerak semu", "Diam (tidak bergerak)", "Mengalami percepatan"], answer: 2, explanation: "Jarak dan posisi Dina terhadap ibunya di dalam mobil tidak berubah, sehingga terhadap ibunya Dina dikatakan diam." },
+            { id: 31, teamPool: 1, topic: "Kelajuan dan Kecepatan", q: "Mengapa dalam sains kelajuan termasuk besaran skalar, sedangkan kecepatan termasuk besaran vektor?", options: ["Kelajuan memiliki satuan m/s, kecepatan tidak", "Kelajuan hanya memiliki nilai dan satuan, sedangkan kecepatan memiliki nilai, satuan, dan arah", "Kelajuan selalu lebih besar dari kecepatan", "Kecepatan tidak bergantung pada waktu"], answer: 1, explanation: "Besaran skalar (kelajuan) hanya ditentukan oleh nilai besar dan satuannya tanpa arah, sedangkan besaran vektor (kecepatan) menyertakan arah." },
+            { id: 32, teamPool: 1, topic: "Kelajuan dan Kecepatan", q: "Sebuah kendaraan menempuh jarak 300 meter dalam waktu 15 sekon. Berapakah kelajuan kendaraan tersebut?", options: ["15 m/s", "20 m/s", "285 m/s", "4.500 m/s"], answer: 1, explanation: "v = s / t = 300 m / 15 s = 20 m/s." },
+            { id: 33, teamPool: 1, topic: "Kelajuan dan Kecepatan", q: "Mobil sport Bugatti Chiron Super Sport 300+ mampu melaju hingga 490 km/jam. Jika jarak yang ditempuh 245 km dengan laju konstan tersebut, waktu yang diperlukan adalah ....", options: ["0,5 jam (30 menit)", "1 jam", "2 jam", "4 jam"], answer: 0, explanation: "t = s / v = 245 km / 490 km/jam = 0,5 jam atau 30 menit." },
+            { id: 34, teamPool: 1, topic: "Percepatan", q: "Sebuah kelereng dilepaskan dari puncak bidang miring yang licin. Selama meluncur ke bawah, gerak kelereng mengalami ....", options: ["Kecepatan yang semakin berkurang", "Percepatan positif (semakin cepat)", "Kecepatan tetap dari atas hingga bawah", "Perpindahan bernilai nol"], answer: 1, explanation: "Akibat komponen gaya gravitasi sepanjang bidang miring, kecepatan kelereng bertambah tiap detiknya (gerak dipercepat)." },
+            { id: 35, teamPool: 1, topic: "Percepatan", q: "Satuan Sistem Internasional (SI) yang benar untuk besaran percepatan adalah ....", options: ["m/s", "m/s²", "kg.m/s", "Newton (N)"], answer: 1, explanation: "Percepatan merupakan perubahan kecepatan (m/s) per satuan waktu (s), sehingga satuannya adalah m/s²." },
+            { id: 36, teamPool: 1, topic: "Percepatan", q: "Kereta api bergerak dengan kecepatan awal 10 m/s. Dalam waktu 10 sekon, kecepatannya meningkat menjadi 30 m/s. Percepatan kereta api adalah ....", options: ["2 m/s²", "3 m/s²", "4 m/s²", "20 m/s²"], answer: 0, explanation: "a = (vt - v0) / t = (30 - 10) / 10 = 20 / 10 = 2 m/s²." },
+            { id: 37, teamPool: 1, topic: "Konsep Gaya", q: "Pengrajin tanah liat menekan-nekan tanah liat hingga berubah menjadi bentuk guci yang indah. Peristiwa ini menunjukkan bahwa gaya dapat ....", options: ["Menghentikan gerak benda", "Mengubah arah gerak benda", "Mengubah bentuk benda", "Mempercepat gerak benda"], answer: 2, explanation: "Salah satu pengaruh gaya terhadap benda adalah dapat mengubah bentuk benda, seperti pada tanah liat atau plastisin yang ditekan." },
+            { id: 38, teamPool: 1, topic: "Resultan Gaya", q: "Sebuah lemari didorong ke timur oleh Andi dengan gaya 75 N dan ditarik ke barat oleh Budi dengan gaya 45 N. Besar dan arah resultan gayanya adalah ....", options: ["30 N ke barat", "30 N ke timur", "120 N ke timur", "120 N ke barat"], answer: 1, explanation: "Karena berlawanan arah: R = 75 N (timur) - 45 N (barat) = 30 N ke arah gaya yang lebih besar (timur)." },
+            { id: 39, teamPool: 1, topic: "Resultan Gaya", q: "Tiga gaya masing-masing F₁ = 20 N, F₂ = 35 N, dan F₃ = 15 N bekerja segaris dan searah mendorong sebuah gerobak. Resultan ketiga gaya tersebut adalah ....", options: ["40 N", "55 N", "70 N", "85 N"], answer: 2, explanation: "Untuk gaya-gaya yang segaris dan searah: R = F₁ + F₂ + F₃ = 20 + 35 + 15 = 70 N." },
+            { id: 40, teamPool: 1, topic: "Macam-Macam Gaya", q: "Buah mangga yang sudah matang jatuh dari tangkainya menuju permukaan tanah karena pengaruh ....", options: ["Gaya pegas", "Gaya gravitasi bumi", "Gaya listrik statis", "Gaya gesek udara"], answer: 1, explanation: "Gaya gravitasi bumi menarik semua benda yang memiliki massa menuju pusat bumi." },
+            { id: 41, teamPool: 1, topic: "Gaya Gesek", q: "Faktor-faktor berikut ini yang memengaruhi besar kecilnya gaya gesek antara dua benda adalah ....", options: ["Warna benda dan suhu ruangan", "Kekasaran permukaan benda dan berat benda", "Luas permukaan benda dan warna lantai", "Volume benda dan bentuk atap"], answer: 1, explanation: "Sesuai buku teks, gaya gesek dipengaruhi oleh tingkat kekasaran permukaan dan berat benda, tetapi tidak dipengaruhi luas permukaan." },
+            { id: 42, teamPool: 1, topic: "Gaya Gesek", q: "Mengapa saat pertama kali mendorong lemari yang diam terasa jauh lebih berat dibandingkan ketika lemari tersebut sudah mulai bergerak?", options: ["Karena massa lemari berkurang saat bergerak", "Karena gaya gesek statis lebih besar daripada gaya gesek kinetis", "Karena gaya gravitasi menghilang saat benda bergerak", "Karena luas permukaan lemari mengecil"], answer: 1, explanation: "Saat benda diam bekerja gaya gesek statis yang nilainya lebih besar daripada gaya gesek kinetis saat benda sudah meluncur." },
+            { id: 43, teamPool: 1, topic: "Gaya Gesek", q: "Cara yang paling tepat untuk mengurangi gaya gesek yang merugikan pada rantai dan gir sepeda motor adalah ....", options: ["Mengganti rantai dengan kayu", "Memberikan oli atau pelumas pada permukaan gir dan rantai", "Memperbesar beban motor", "Mengamplas rantai agar lebih kasar"], answer: 1, explanation: "Pemberian oli/pelumas melicinkan permukaan yang bersentuhan sehingga memperkecil gaya gesek dan mencegah keausan." },
+            { id: 44, teamPool: 1, topic: "Hukum I Newton", q: "Benda yang memiliki massa lebih besar akan memiliki sifat kelembaman yang ....", options: ["Lebih kecil sehingga mudah digerakkan", "Lebih besar sehingga semakin sulit diubah keadaan geraknya", "Sama saja dengan benda ringan", "Bernilai nol"], answer: 1, explanation: "Semakin besar massa benda, semakin besar kelembamannya (semakin malas mengubah keadaan diam atau geraknya)." },
+            { id: 45, teamPool: 1, topic: "Hukum I Newton", q: "Jika kertas di bawah gelas berisi air ditarik secara mendatar dengan sangat cepat, gelas tetap diam di tempatnya. Fenomena ini membuktikan ....", options: ["Hukum I Newton (Kelembaman)", "Hukum II Newton", "Hukum III Newton", "Gaya Magnet"], answer: 0, explanation: "Gelas mempertahankan keadaan diamnya karena sifat kelembaman (Hukum I Newton) ketika tarikan berlangsung sangat singkat." },
+            { id: 46, teamPool: 1, topic: "Hukum II Newton", q: "Menurut Hukum II Newton, percepatan yang dialami oleh sebuah benda adalah ....", options: ["Sebanding dengan gaya dan sebanding dengan massa", "Sebanding dengan gaya dan berbanding terbalik dengan massa benda", "Berbanding terbalik dengan gaya dan massa", "Tidak dipengaruhi oleh gaya maupun massa"], answer: 1, explanation: "Rumus a = F / m menunjukkan percepatan (a) berbanding lurus dengan gaya (F) dan berbanding terbalik dengan massa (m)." },
+            { id: 47, teamPool: 1, topic: "Hukum II Newton", q: "Gaya sebesar 30 Newton bekerja pada sebuah benda bermassa 6 kg. Berapakah percepatan yang dialami benda tersebut?", options: ["0,2 m/s²", "5 m/s²", "24 m/s²", "180 m/s²"], answer: 1, explanation: "a = F / m = 30 N / 6 kg = 5 m/s²." },
+            { id: 48, teamPool: 1, topic: "Hukum III Newton", q: "Ciri-ciri pasangan gaya aksi dan gaya reaksi menurut Hukum III Newton adalah ....", options: ["Besarnya sama, arahnya sama, bekerja pada satu benda", "Besarnya sama, arahnya berlawanan, dan bekerja pada dua benda berbeda", "Besarnya berbeda, arahnya berlawanan, bekerja pada satu benda", "Besarnya sama, arahnya tegak lurus"], answer: 1, explanation: "Gaya aksi dan reaksi memiliki besar yang sama, arah berlawanan (F_aksi = -F_reaksi), dan bekerja pada dua benda yang berbeda." },
+            { id: 49, teamPool: 1, topic: "Teknologi Hukum Newton", q: "Pada percobaan penyiram tanaman berputar dari kaleng bekas (Aktivitas 4.5), air memancar keluar dari lubang miring sehingga kaleng berputar berlawanan arah. Prinsip ini menggunakan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya listrik"], answer: 2, explanation: "Pancaran air ke satu arah merupakan gaya aksi, dan putaran kaleng ke arah sebaliknya adalah gaya reaksi (Hukum III Newton)." },
+            { id: 50, teamPool: 1, topic: "Teknologi Hukum Newton", q: "Ketika seseorang mendayung perahu ke arah belakang, perahu justru melaju ke arah depan. Gaya reaksi pada peristiwa ini adalah ....", options: ["Dayung mendorong air ke belakang", "Air mendorong dayung dan perahu ke depan", "Gaya gravitasi menarik perahu ke bawah", "Angin menahan layar perahu"], answer: 1, explanation: "Aksi: dayung mendorong air ke belakang. Reaksi: air mendorong dayung/perahu ke depan dengan gaya sama besar." },
+
+            // --- PAKET TIM 3 (No 51 - 75) ---
+            { id: 51, teamPool: 2, topic: "Perpindahan dan Jarak Tempuh", q: "Jika sekolah berada 250 meter di sebelah timur rumah (posisi 0 m), maka perpindahan siswa saat berangkat dari rumah hingga tiba di sekolah adalah ....", options: ["0 meter", "125 meter", "250 meter", "500 meter"], answer: 2, explanation: "Δx = x_akhir - x_awal = 250 m - 0 m = 250 meter ke arah timur." },
+            { id: 52, teamPool: 2, topic: "Perpindahan dan Jarak Tempuh", q: "Dua siswa berangkat pada waktu bersamaan dari kompleks yang sama menuju sekolah. Siswa A lewat jalan memutar sejauh 800 m, siswa B lewat jalan pintas lurus sejauh 500 m. Besar perpindahan keduanya adalah ....", options: ["Siswa A lebih besar perpindahannya", "Siswa B lebih besar perpindahannya", "Sama besar karena titik awal dan titik akhirnya sama", "Tidak dapat ditentukan"], answer: 2, explanation: "Perpindahan hanya bergantung pada posisi awal dan posisi akhir tanpa memperhatikan bentuk atau panjang lintasannya." },
+            { id: 53, teamPool: 2, topic: "Perpindahan dan Jarak Tempuh", q: "Sebuah mobil bergerak lurus ke utara sejauh 60 km, kemudian berbalik arah ke selatan sejauh 20 km. Total jarak tempuh dan perpindahan mobil berturut-turut adalah ....", options: ["Jarak 80 km, perpindahan 40 km", "Jarak 40 km, perpindahan 80 km", "Jarak 80 km, perpindahan 80 km", "Jarak 60 km, perpindahan 20 km"], answer: 0, explanation: "Jarak tempuh = 60 + 20 = 80 km. Perpindahan = 60 (utara) - 20 (selatan) = 40 km ke utara." },
+            { id: 54, teamPool: 2, topic: "Gerak Relatif & Gerak Semu", q: "Gerak semu harian Matahari yang tampak terbit di timur dan terbenam di barat sebenarnya disebabkan oleh ....", options: ["Matahari mengelilingi Bumi setiap hari", "Pengamat berada di Bumi yang berotasi pada porosnya", "Bulan menarik cahaya Matahari", "Matahari bergerak lurus beraturan"], answer: 1, explanation: "Matahari sebenarnya tidak mengitari Bumi setiap hari; kita mengamati gerak semu karena kita berada di atas Bumi yang berotasi." },
+            { id: 55, teamPool: 2, topic: "Gerak Relatif & Gerak Semu", q: "Siti berdiri di tepi jalan raya mengamati Hasan yang sedang mengayuh sepeda melewatinya. Menurut Siti, yang sedang bergerak adalah ....", options: ["Pohon di pinggir jalan", "Hasan bersama sepedanya terhadap jalan/kota", "Tiang listrik di seberang jalan", "Siti sendiri"], answer: 1, explanation: "Bagi Siti yang diam di tepi jalan sebagai titik acuan, Hasan dan sepedanya mengalami perubahan posisi sehingga dikatakan bergerak." },
+            { id: 56, teamPool: 2, topic: "Kelajuan dan Kecepatan", q: "Kelajuan gerak suatu benda yang menempuh jarak tertentu di mana tidak setiap bagian jarak ditempuh dalam waktu yang sama disebut ....", options: ["Kelajuan sesaat", "Kelajuan rata-rata", "Percepatan tetap", "Kelembaman"], answer: 1, explanation: "Kelajuan rata-rata dirumuskan sebagai jumlah seluruh jarak dibagi jumlah seluruh waktu tempuh (v̄ = Σs / Σt)." },
+            { id: 57, teamPool: 2, topic: "Kelajuan dan Kecepatan", q: "Sebuah bus menempuh jarak 100 m pertama dalam waktu 10 sekon, kemudian menempuh 200 m berikutnya dalam waktu 20 sekon. Kelajuan rata-rata bus adalah ....", options: ["5 m/s", "10 m/s", "15 m/s", "30 m/s"], answer: 1, explanation: "v̄ = Σs / Σt = (100 + 200) / (10 + 20) = 300 / 30 = 10 m/s." },
+            { id: 58, teamPool: 2, topic: "Kelajuan dan Kecepatan", q: "Konversikan kelajuan kendaraan sebesar 72 km/jam ke dalam satuan Sistem Internasional (m/s)!", options: ["10 m/s", "20 m/s", "36 m/s", "72 m/s"], answer: 1, explanation: "72 km/jam = 72.000 meter / 3.600 sekon = 20 m/s." },
+            { id: 59, teamPool: 2, topic: "Percepatan", q: "Suatu benda dikatakan mengalami percepatan apabila selama bergerak terjadi perubahan ....", options: ["Massa benda saja", "Nilai kecepatan saja, arah gerak saja, atau keduanya", "Bentuk lintasan menjadi diam", "Titik acuan pengamat"], answer: 1, explanation: "Perubahan kecepatan (percepatan) dapat berupa perubahan besar/nilai kecepatan, perubahan arah gerak, maupun perubahan keduanya." },
+            { id: 60, teamPool: 2, topic: "Percepatan", q: "Mobil balap melaju dengan kecepatan 30 m/s, lalu pengemudi menginjak rem sehingga dalam 6 sekon kecepatannya turun menjadi 6 m/s. Percepatan mobil adalah ....", options: ["-4 m/s²", "+4 m/s²", "-6 m/s²", "+6 m/s²"], answer: 0, explanation: "a = (vt - v0) / t = (6 - 30) / 6 = -24 / 6 = -4 m/s² (tanda negatif menunjukkan perlambatan)." },
+            { id: 61, teamPool: 2, topic: "Konsep Gaya", q: "Seorang kiper menepis bola tendangan penalti sehingga bola berbelok menjauhi gawang. Kejadian ini membuktikan gaya dapat ....", options: ["Mengubah arah gerak benda", "Menambah massa bola", "Menghilangkan gaya gravitasi", "Membuat bola menjadi lembam"], answer: 0, explanation: "Tepisan tangan kiper memberikan gaya yang mengubah arah lintasan bola." },
+            { id: 62, teamPool: 2, topic: "Resultan Gaya", q: "Dua orang siswa mendorong meja dari arah yang berlawanan dengan kekuatan yang sama besar. Meja tetap diam di tempat karena ....", options: ["Tidak ada gaya gesek di lantai", "Resultan gaya yang bekerja pada meja bernilai nol", "Massa meja menjadi nol", "Gaya gravitasi menarik meja ke samping"], answer: 1, explanation: "Dua gaya sama besar yang berlawanan arah menghasilkan resultan gaya R = F₁ + (-F₂) = 0 sehingga benda tetap diam." },
+            { id: 63, teamPool: 2, topic: "Resultan Gaya", q: "Gaya F₁ = 60 N ke kanan dan F₂ = 25 N ke kanan bekerja pada sebuah kotak, sementara gaya gesek lantai F_gesek = 15 N ke kiri. Resultan gayanya adalah ....", options: ["50 N ke kanan", "70 N ke kanan", "85 N ke kanan", "100 N ke kiri"], answer: 1, explanation: "R = (60 + 25) - 15 = 85 - 15 = 70 N ke arah kanan." },
+            { id: 64, teamPool: 2, topic: "Macam-Macam Gaya", q: "Paku-paku kecil yang berserakan di lantai dapat dengan mudah dikumpulkan menggunakan batang magnet karena adanya ....", options: ["Gaya otot", "Gaya listrik", "Gaya magnet", "Gaya pegas"], answer: 2, explanation: "Magnet memiliki kemampuan menarik benda-benda feromagnetik seperti paku besi melalui gaya magnet." },
+            { id: 65, teamPool: 2, topic: "Gaya Gesek", q: "Mengapa saat kita berlari di pantai yang berpasir terasa jauh lebih berat dibandingkan berlari di jalan beraspal?", options: ["Gaya gravitasi di pantai lebih besar", "Permukaan pasir tidak rata/kasar dan mudah bergeser sehingga hambatan gesek lebih besar", "Massa tubuh bertambah di pantai", "Tidak ada gaya otot di pantai"], answer: 1, explanation: "Permukaan pasir yang gembur dan kasar menghasilkan hambatan/gaya gesek yang lebih besar pada telapak kaki." },
+            { id: 66, teamPool: 2, topic: "Gaya Gesek", q: "Gaya gesek yang terjadi di antara permukaan balok kayu dengan lantai setelah balok kayu tersebut mulai meluncur bergerak disebut ....", options: ["Gaya gesek statis", "Gaya gesek kinetis", "Gaya pegas", "Gaya berat"], answer: 1, explanation: "Gaya gesek kinetis adalah gaya gesek yang bekerja selama benda dalam keadaan bergerak." },
+            { id: 67, teamPool: 2, topic: "Gaya Gesek", q: "Ban mobil dan sepeda motor dibuat dari karet keras serta diberi alur/ukiran pada permukaannya dengan tujuan untuk ....", options: ["Mengurangi gaya gesek agar mobil melayang", "Memperbesar gaya gesek antara ban dan jalan agar tidak tergelincir", "Memperindah tampilan roda saja", "Mengurangi berat kendaraan"], answer: 1, explanation: "Alur pada ban karet memperbesar gaya gesek dengan aspal sehingga roda mencengkeram jalan dengan baik." },
+            { id: 68, teamPool: 2, topic: "Gaya Gesek", q: "Bentuk bagian depan pesawat terbang dan kereta cepat dibuat meruncing (aerodinamis) untuk memperkecil ....", options: ["Gaya mesin", "Gaya gesek dengan udara", "Gaya magnet bumi", "Massa penumpang"], answer: 1, explanation: "Bentuk aerodinamis membelah aliran udara sehingga mengurangi gaya gesek/hambatan udara saat melaju kencang." },
+            { id: 69, teamPool: 2, topic: "Hukum I Newton", q: "Ilmuwan besar abad ke-17 yang merumuskan tiga hukum gerak dalam buku termasyhur 'Philosophiae Naturalis Principia Mathematica' adalah ....", options: ["Galileo Galilei", "Sir Isaac Newton", "Albert Einstein", "Archimedes"], answer: 1, explanation: "Sir Isaac Newton (1643–1727) merumuskan Hukum I, II, dan III Newton tentang gerak benda." },
+            { id: 70, teamPool: 2, topic: "Hukum I Newton", q: "Sebuah buku diletakkan di atas meja dan tetap diam selamanya selama tidak ada gaya luar yang mengganggunya. Keadaan ini sesuai dengan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Hukum Archimedes"], answer: 0, explanation: "Hukum I Newton menyatakan jika resultan gaya bernilai nol, benda yang diam akan tetap diam." },
+            { id: 71, teamPool: 2, topic: "Hukum II Newton", q: "Dua mobil-mobilan didorong dengan gaya yang sama besar. Mobil A bermassa 2 kg dan Mobil B bermassa 4 kg. Perbandingan percepatan Mobil A dan Mobil B adalah ....", options: ["Mobil A percepatannya 2 kali lebih besar dari Mobil B", "Mobil B percepatannya 2 kali lebih besar dari Mobil A", "Percepatan keduanya sama besar", "Mobil A tidak bergerak"], answer: 0, explanation: "Karena a = F / m, untuk gaya F yang sama, benda dengan massa setengah kali lebih kecil (2 kg vs 4 kg) memiliki percepatan 2 kali lebih besar." },
+            { id: 72, teamPool: 2, topic: "Hukum II Newton", q: "Sebuah benda yang dikenai gaya sebesar 50 N mengalami percepatan 2,5 m/s². Berapakah massa benda tersebut?", options: ["10 kg", "20 kg", "47,5 kg", "125 kg"], answer: 1, explanation: "Dari F = m × a, maka m = F / a = 50 N / 2,5 m/s² = 20 kg." },
+            { id: 73, teamPool: 2, topic: "Hukum III Newton", q: "Ketika burung mengepakkan sayapnya ke bawah, udara memberikan dorongan ke atas sehingga burung dapat terbang. Gaya aksi pada peristiwa ini adalah ....", options: ["Udara mendorong sayap burung ke atas", "Sayap burung mendorong udara ke bawah", "Gaya gravitasi menarik burung ke tanah", "Angin bertiup dari samping"], answer: 1, explanation: "Gaya aksi adalah kepakan sayap burung yang menekan udara ke bawah, sedangkan gaya reaksinya adalah dorongan udara ke atas." },
+            { id: 74, teamPool: 2, topic: "Teknologi Hukum Newton", q: "Pada percobaan membuat roket korek api dari aluminium foil dan klip kertas (Proyek Akhir Bab), penambahan lapisan aluminium foil terlalu tebal menyebabkan ....", options: ["Roket terbang makin tinggi", "Massa roket bertambah sehingga percepatannya berkurang atau sulit meluncur", "Gaya gravitasi menghilang", "Gaya gesek menjadi nol"], answer: 1, explanation: "Berdasarkan Hukum II Newton (a = F/m), beban/massa yang terlalu besar memperkecil percepatan luncur roket." },
+            { id: 75, teamPool: 2, topic: "Hukum I Newton", q: "Fungsi utama sabuk pengaman (seatbelt) pada mobil jika ditinjau dari konsep fisika adalah untuk menahan tubuh penumpang dari sifat ....", options: ["Gaya magnet", "Kelembaman (Hukum I Newton) saat mobil direm mendadak", "Gaya pegas kursi", "Gaya listrik statis"], answer: 1, explanation: "Saat mobil direm mendadak, tubuh penumpang cenderung terus bergerak maju akibat kelembaman (Hukum I Newton), sehingga ditahan oleh sabuk pengaman." },
+
+            // --- PAKET TIM 4 (No 76 - 100) ---
+            { id: 76, teamPool: 3, topic: "Perpindahan dan Jarak Tempuh", q: "Gerak sebuah benda yang lintasannya berupa garis lurus dan cukup dijelaskan menggunakan satu sumbu koordinat (misal sumbu-x) disebut ....", options: ["Gerak melingkar", "Gerak satu dimensi", "Gerak tiga dimensi", "Gerak parabola"], answer: 1, explanation: "Gerak pada lintasan garis lurus dalam satu arah pandang (sumbu-x saja) disebut gerak satu dimensi." },
+            { id: 77, teamPool: 3, topic: "Perpindahan dan Jarak Tempuh", q: "Seorang siswa berjalan ke timur sejauh 30 meter, kemudian berbelok ke utara sejauh 40 meter. Berapakah total jarak tempuh siswa tersebut?", options: ["10 meter", "50 meter", "70 meter", "120 meter"], answer: 2, explanation: "Jarak tempuh menjumlahkan seluruh panjang lintasan yang dilalui: 30 m + 40 m = 70 meter." },
+            { id: 78, teamPool: 3, topic: "Perpindahan dan Jarak Tempuh", q: "Seorang siswa berjalan ke timur sejauh 30 meter, lalu berbelok tegak lurus ke utara sejauh 40 meter. Besar perpindahan lurus dari titik awal ke akhir adalah ....", options: ["10 meter", "50 meter", "70 meter", "1.200 meter"], answer: 1, explanation: "Dengan dalil Pythagoras untuk garis lurus awal ke akhir: √(30² + 40²) = √(900 + 1600) = √2500 = 50 meter." },
+            { id: 79, teamPool: 3, topic: "Gerak Relatif & Gerak Semu", q: "Saat mengendarai sepeda menuju sekolah, kita melewati seorang pedagang yang berdiri diam di pinggir jalan. Bagi kita yang di atas sepeda, pedagang tersebut tampak bergerak berlawanan arah. Ini contoh ....", options: ["Gerak dipercepat", "Gerak semu", "Gerak jatuh bebas", "Gerak melingkar"], answer: 1, explanation: "Pedagang sebenarnya diam terhadap tanah, tetapi pengamat di atas sepeda melihatnya seolah-olah bergerak mundur (gerak semu)." },
+            { id: 80, teamPool: 3, topic: "Gerak Relatif & Gerak Semu", q: "Seorang masinis berada di dalam lokomotif kereta api yang sedang berjalan meninggalkan stasiun. Masinis dikatakan diam apabila titik acuannya adalah ....", options: ["Tiang lampu di stasiun", "Gerbong kereta api itu sendiri", "Pohon di pinggir rel", "Penumpang yang berdiri di peron"], answer: 1, explanation: "Posisi masinis terhadap gerbong kereta api yang ditumpanginya tidak berubah, sehingga ia diam terhadap kereta." },
+            { id: 81, teamPool: 3, topic: "Kelajuan dan Kecepatan", q: "Alat ukur yang terpasang pada dashboard sepeda motor atau mobil untuk menunjukkan kelajuan sesaat kendaraan adalah ....", options: ["Termometer", "Spidometer", "Dinamometer", "Barometer"], answer: 1, explanation: "Spidometer mengukur kelajuan sesaat kendaraan karena hanya menunjukkan besar angka kelajuan tanpa arah." },
+            { id: 82, teamPool: 3, topic: "Kelajuan dan Kecepatan", q: "Jarak rumah Dika ke sekolah adalah 900 meter. Jika Dika bersepeda dengan kelajuan tetap 5 m/s, waktu yang diperlukan untuk tiba di sekolah adalah ....", options: ["90 sekon (1,5 menit)", "180 sekon (3 menit)", "450 sekon (7,5 menit)", "4.500 sekon"], answer: 1, explanation: "t = s / v = 900 m / 5 m/s = 180 sekon (atau 3 menit)." },
+            { id: 83, teamPool: 3, topic: "Kelajuan dan Kecepatan", q: "Sebuah mobil melaju dengan kecepatan tetap 15 m/s selama 40 sekon. Berapakah jarak yang ditempuh mobil tersebut?", options: ["2,67 meter", "55 meter", "600 meter", "1.500 meter"], answer: 2, explanation: "s = v × t = 15 m/s × 40 s = 600 meter." },
+            { id: 84, teamPool: 3, topic: "Percepatan", q: "Sebuah benda bergerak lurus dengan kecepatan konstan (tetap) sebesar 12 m/s selama 10 sekon. Berapakah percepatan benda tersebut?", options: ["0 m/s²", "1,2 m/s²", "12 m/s²", "120 m/s²"], answer: 0, explanation: "Karena kecepatan benda tetap (tidak ada perubahan kecepatan, vt = v0 = 12 m/s), maka percepatannya a = (12 - 12)/10 = 0 m/s²." },
+            { id: 85, teamPool: 3, topic: "Percepatan", q: "Bola digelindingkan di atas lantai datar yang kasar hingga lama-kelamaan berhenti. Gerak bola tersebut termasuk ....", options: ["Gerak dipercepat beraturan", "Gerak diperlambat", "Gerak lurus beraturan", "Gerak melingkar"], answer: 1, explanation: "Gaya gesek lantai mengurangi kecepatan bola hingga berhenti, sehingga bola mengalami gerak diperlambat." },
+            { id: 86, teamPool: 3, topic: "Konsep Gaya", q: "Gaya termasuk besaran vektor karena memiliki ....", options: ["Massa dan volume", "Nilai besar dan arah", "Suhu dan tekanan", "Jarak dan waktu"], answer: 1, explanation: "Gaya dapat dilukiskan dengan anak panah yang memiliki panjang (nilai besar) dan arah tertentu, sehingga termasuk besaran vektor." },
+            { id: 87, teamPool: 3, topic: "Resultan Gaya", q: "Budi menarik kotak ke kiri dengan gaya 80 N, sedangkan Ali mendorong kotak tersebut ke kiri juga dengan gaya 45 N. Resultan gaya pada kotak adalah ....", options: ["35 N ke kiri", "35 N ke kanan", "125 N ke kiri", "125 N ke kanan"], answer: 2, explanation: "Kedua gaya bekerja searah (sama-sama ke kiri), sehingga R = 80 N + 45 N = 125 N ke kiri." },
+            { id: 88, teamPool: 3, topic: "Resultan Gaya", q: "Gaya F₁ = 120 N ke utara dan F₂ = 85 N ke selatan bekerja pada sebuah benda. Resultan gaya yang dialami benda adalah ....", options: ["35 N ke selatan", "35 N ke utara", "205 N ke utara", "205 N ke selatan"], answer: 1, explanation: "Kedua gaya berlawanan arah: R = 120 N (utara) - 85 N (selatan) = 35 N ke arah utara." },
+            { id: 89, teamPool: 3, topic: "Macam-Macam Gaya", q: "Penggaris plastik yang digosokkan ke rambut kering dapat menarik potongan-potongan kertas kecil karena timbulnya ....", options: ["Gaya magnet", "Gaya listrik statis", "Gaya gravitasi", "Gaya pegas"], answer: 1, explanation: "Gosokan memindahkan muatan listrik sehingga penggaris bermuatan listrik statis dan menarik serpihan kertas." },
+            { id: 90, teamPool: 3, topic: "Gaya Gesek", q: "Pernyataan manakah yang BENAR mengenai sifat gaya gesek?", options: ["Arah gaya gesek selalu searah dengan arah gerak benda", "Gaya gesek hanya terjadi pada benda cair", "Arah gaya gesek selalu berlawanan dengan arah gerak benda", "Gaya gesek statis lebih kecil dari gaya gesek kinetis"], answer: 2, explanation: "Gaya gesek selalu bekerja menghambat gerak benda sehingga arahnya berlawanan dengan arah gerak atau kecenderungan gerak benda." },
+            { id: 91, teamPool: 3, topic: "Gaya Gesek", q: "Mengapa saat bersepeda melawan arah angin terasa jauh lebih berat dibandingkan saat bersepeda searah dengan angin?", options: ["Karena massa sepeda bertambah saat melawan angin", "Karena gaya gesek/hambatan angin berlawanan arah dengan laju sepeda", "Karena gaya gravitasi menarik sepeda ke belakang", "Karena rantai sepeda memuai"], answer: 1, explanation: "Angin yang berlawanan arah memberikan gaya hambat/gesek udara yang mengurangi resultan gaya dorong sepeda." },
+            { id: 92, teamPool: 3, topic: "Gaya Gesek", q: "Pemasangan bantalan peluru (bearing/laher) pada poros roda sepeda bertujuan untuk ....", options: ["Memperbesar gaya gesek agar roda cepat berhenti", "Memperkecil gaya gesek sehingga putaran roda menjadi ringan dan lancar", "Menambah berat sepeda", "Mengubah arah gerak roda"], answer: 1, explanation: "Bantalan peluru (bearing) mengubah gesekan luncur menjadi gesekan gelinding yang jauh lebih kecil sehingga putaran poros lancar." },
+            { id: 93, teamPool: 3, topic: "Hukum I Newton", q: "Penumpang yang duduk di dalam mobil yang sedang berhenti tiba-tiba terdorong ke belakang saat mobil digas mendadak. Hal ini dijelaskan oleh ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Hukum Gravitasi"], answer: 0, explanation: "Tubuh penumpang cenderung mempertahankan keadaan diamnya (kelembaman / Hukum I Newton) ketika mobil mulai melaju ke depan." },
+            { id: 94, teamPool: 3, topic: "Hukum I Newton", q: "Sebuah benda yang sedang bergerak lurus beraturan dengan kecepatan konstan memiliki resultan gaya sebesar ....", options: ["Sama dengan massanya", "Nol (0 Newton)", "Sama dengan kecepatannya", "Tak terhingga"], answer: 1, explanation: "Menurut Hukum I Newton, benda yang bergerak lurus beraturan dengan kecepatan tetap memiliki jumlah/resultan gaya = 0." },
+            { id: 95, teamPool: 3, topic: "Hukum II Newton", q: "Jika gaya yang diberikan pada suatu benda diperbesar menjadi 2 kali lipat sedangkan massa benda tetap, maka percepatan benda akan menjadi ....", options: ["Setengah kali semula", "Tetap seperti semula", "2 kali lebih besar dari semula", "4 kali lebih besar dari semula"], answer: 2, explanation: "Sesuai F = m × a, percepatan berbanding lurus dengan gaya. Jika F menjadi 2 kali lipat dan m tetap, percepatan (a) menjadi 2 kali lipat." },
+            { id: 96, teamPool: 3, topic: "Hukum II Newton", q: "Sebuah troli bermassa 5 kg ditarik dengan gaya 25 Newton pada lantai licin. Berapakah percepatan troli tersebut?", options: ["0,2 m/s²", "5 m/s²", "20 m/s²", "125 m/s²"], answer: 1, explanation: "a = F / m = 25 N / 5 kg = 5 m/s²." },
+            { id: 97, teamPool: 3, topic: "Hukum III Newton", q: "Saat seorang perenang mendorong dinding kolam renang ke belakang dengan kakinya, tubuh perenang meluncur ke depan. Peristiwa ini merupakan contoh ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya gesek statis"], answer: 2, explanation: "Kaki mendorong dinding (gaya aksi), dan dinding mendorong tubuh perenang ke depan (gaya reaksi) sesuai Hukum III Newton." },
+            { id: 98, teamPool: 3, topic: "Hukum III Newton", q: "Jika gaya aksi yang diberikan suatu benda sebesar +45 N, maka besar dan tanda gaya reaksi yang timbul adalah ....", options: ["+45 N", "-45 N", "0 N", "+90 N"], answer: 1, explanation: "Sesuai rumus F_aksi = -F_reaksi, besarnya sama (45 N) namun arahnya berlawanan (ditandai tanda negatif -45 N)." },
+            { id: 99, teamPool: 3, topic: "Teknologi Hukum Newton", q: "Pada percobaan Aktivitas 4.2 (Balap Mobil-mobilan Tenaga Angin), faktor apa yang membuat mobil-mobilan dapat bergerak lebih cepat saat ditiup kipas?", options: ["Luas layar penangkap angin yang optimal dan massa mobil yang ringan", "Roda dibuat berbentuk kotak", "Massa mobil dibuat seberat mungkin", "Layar dilipat sekecil mungkin"], answer: 0, explanation: "Layar yang cukup luas menangkap gaya dorong angin lebih besar (F besar) dan massa ringan memperbesar percepatan (a = F/m)." },
+            { id: 100, teamPool: 3, topic: "Teknologi Hukum Newton", q: "Mengapa senapan terdorong ke belakang (menghentak bahu penembak) pada saat peluru ditembakkan melesat ke depan?", options: ["Karena adanya gaya gesek di dalam laras", "Karena gaya reaksi dari peluru yang didorong ke depan sesuai Hukum III Newton", "Karena massa senapan lebih ringan dari peluru", "Karena kelembaman peluru"], answer: 1, explanation: "Senapan mendorong peluru ke depan (aksi), sehingga peluru memberikan gaya reaksi yang sama besar ke belakang pada senapan (Hukum III Newton)." }
+        ];
+
+        // --- TAMBAHAN 100 SOAL UNIK BARU UNTUK TIM 5, TIM 6, TIM 7, DAN TIM 8 (No 101 - 200) ---
+        const EXTRA_QUESTIONS_100 = [
+            // --- PAKET TIM 5 (No 101 - 125) ---
+            { id: 101, teamPool: 4, topic: "Perpindahan dan Jarak Tempuh", q: "Dalam koordinat kartesian, jika suatu benda bergerak lurus mendatar ke kiri dan ke kanan saja, sumbu koordinat yang digunakan cukup ....", options: ["Sumbu-x saja", "Sumbu-y saja", "Sumbu-x dan sumbu-z", "Sumbu-y dan sumbu-z"], answer: 0, explanation: "Gerak satu dimensi mendatar cukup dinyatakan dengan satu sumbu koordinat saja, yaitu sumbu-x." },
+            { id: 102, teamPool: 4, topic: "Perpindahan dan Jarak Tempuh", q: "Posisi awal sebuah sepeda berada pada titik x₀ = 15 m, kemudian bergerak hingga posisi akhir xₜ = 65 m. Perpindahan sepeda tersebut adalah ....", options: ["15 meter", "50 meter", "65 meter", "80 meter"], answer: 1, explanation: "Δx = xₜ - x₀ = 65 m - 15 m = 50 meter." },
+            { id: 103, teamPool: 4, topic: "Perpindahan dan Jarak Tempuh", q: "Fatimah berjalan dari kelas ke kantin sejauh 40 m, lalu pergi ke perpustakaan yang searah sejauh 35 m. Total jarak tempuh Fatimah adalah ....", options: ["5 meter", "35 meter", "40 meter", "75 meter"], answer: 3, explanation: "Total panjang lintasan yang ditempuh = 40 m + 35 m = 75 meter." },
+            { id: 104, teamPool: 4, topic: "Perpindahan dan Jarak Tempuh", q: "Manakah di antara besaran berikut ini yang nilainya TIDAK pernah negatif?", options: ["Perpindahan", "Percepatan", "Jarak tempuh", "Kecepatan"], answer: 2, explanation: "Jarak tempuh merupakan besaran skalar yang menyatakan panjang lintasan sehingga nilainya selalu positif atau nol." },
+            { id: 105, teamPool: 4, topic: "Gerak Relatif & Gerak Semu", q: "Bulan tampak bergerak mengikuti kita saat kita berjalan di malam hari. Peristiwa ini merupakan contoh dari ....", options: ["Gerak jatuh bebas", "Gerak semu", "Gerak dipercepat", "Gerak lurus berubah beraturan"], answer: 1, explanation: "Bulan berada sangat jauh sehingga posisi sudutnya tampak tetap saat kita berjalan, menimbulkan kesan gerak semu." },
+            { id: 106, teamPool: 4, topic: "Gerak Relatif & Gerak Semu", q: "Dua mobil A dan B melaju berdampingan ke arah timur dengan kecepatan sama persis 60 km/jam. Menurut pengemudi mobil A, mobil B tampak ....", options: ["Bergerak mundur ke barat", "Diam di tempat", "Melaju 120 km/jam ke timur", "Bergerak zig-zag"], answer: 1, explanation: "Karena jarak dan posisi mobil B terhadap mobil A tidak berubah, terhadap mobil A mobil B dikatakan diam (gerak relatif)." },
+            { id: 107, teamPool: 4, topic: "Kelajuan dan Kecepatan", q: "Kelajuan konstan (tetap) adalah kelajuan gerak benda ketika setiap bagian jarak yang sama ditempuh dalam ....", options: ["Arah yang berlawanan", "Selang waktu yang sama", "Lintasan yang melingkar", "Percepatan yang besar"], answer: 1, explanation: "Kelajuan konstan berarti setiap bagian jarak yang sama ditempuh dalam selang waktu yang sama." },
+            { id: 108, teamPool: 4, topic: "Kelajuan dan Kecepatan", q: "Sebuah sepeda motor menempuh jarak 450 meter dalam waktu 30 sekon. Berapakah kelajuan sepeda motor tersebut?", options: ["10 m/s", "15 m/s", "30 m/s", "420 m/s"], answer: 1, explanation: "v = s / t = 450 m / 30 s = 15 m/s." },
+            { id: 109, teamPool: 4, topic: "Kelajuan dan Kecepatan", q: "Jika kelajuan suatu benda 10 m/s, berapa jarak yang dapat ditempuh benda tersebut dalam waktu 1 menit (60 sekon)?", options: ["6 meter", "60 meter", "600 meter", "6.000 meter"], answer: 2, explanation: "s = v × t = 10 m/s × 60 s = 600 meter." },
+            { id: 110, teamPool: 4, topic: "Percepatan", q: "Sebuah mobil mulai bergerak dari keadaan diam (0 m/s) dan mencapai kecepatan 24 m/s dalam waktu 8 sekon. Percepatan mobil adalah ....", options: ["2 m/s²", "3 m/s²", "4 m/s²", "16 m/s²"], answer: 1, explanation: "a = (vt - v0) / t = (24 - 0) / 8 = 3 m/s²." },
+            { id: 111, teamPool: 4, topic: "Percepatan", q: "Buah kelapa yang jatuh bebas dari pohonnya menuju tanah akan mengalami gerak ....", options: ["Diperlambat beraturan", "Dipercepat karena tarikan gravitasi", "Kecepatan tetap", "Melayang di udara"], answer: 1, explanation: "Gaya gravitasi menarik buah kelapa ke bawah sehingga kecepatannya terus bertambah setiap detik (gerak dipercepat)." },
+            { id: 112, teamPool: 4, topic: "Percepatan", q: "Tanda negatif (-) pada hasil perhitungan percepatan (misalnya a = -3 m/s²) memiliki arti bahwa benda sedang ....", options: ["Bergerak mundur dengan laju tetap", "Mengalami perlambatan (kecepatannya berkurang)", "Diam di tempat", "Bergerak melingkar"], answer: 1, explanation: "Nilai percepatan negatif menunjukkan kecepatan akhir lebih kecil dari kecepatan awal (gerak diperlambat)." },
+            { id: 113, teamPool: 4, topic: "Konsep Gaya", q: "Alat laboratorium yang digunakan untuk mengukur besarnya gaya secara langsung adalah ....", options: ["Stopwatch", "Neraca pegas (dinamometer)", "Termometer", "Mikrometer sekrup"], answer: 1, explanation: "Neraca pegas atau dinamometer mengukur besar gaya dalam satuan Newton (N)." },
+            { id: 114, teamPool: 4, topic: "Resultan Gaya", q: "Dua gaya masing-masing 55 N ke kanan dan 35 N ke kiri bekerja pada sebuah balok. Resultan gaya dan arah gerak balok adalah ....", options: ["20 N ke kiri", "20 N ke kanan", "90 N ke kanan", "90 N ke kiri"], answer: 1, explanation: "R = 55 N (kanan) - 35 N (kiri) = 20 N ke arah kanan." },
+            { id: 115, teamPool: 4, topic: "Resultan Gaya", q: "Jika resultan seluruh gaya yang bekerja pada sebuah benda yang diam bernilai nol, maka benda tersebut akan ....", options: ["Bergerak dipercepat", "Tetap diam di posisinya", "Berubah bentuk", "Terlempar ke atas"], answer: 1, explanation: "Jika resultan gaya = 0 pada benda diam, tidak ada gaya bersih yang menggerakkannya sehingga benda tetap diam." },
+            { id: 116, teamPool: 4, topic: "Macam-Macam Gaya", q: "Ketika kita mengangkat ember berisi air dari sumur menggunakan tangan, jenis gaya utama yang bekerja dari tubuh kita adalah ....", options: ["Gaya pegas", "Gaya otot", "Gaya magnet", "Gaya listrik"], answer: 1, explanation: "Gaya otot adalah gaya yang dihasilkan oleh kontraksi otot makhluk hidup saat menarik atau mengangkat benda." },
+            { id: 117, teamPool: 4, topic: "Gaya Gesek", q: "Apakah luas bidang sentuh permukaan dua benda memengaruhi besarnya gaya gesek?", options: ["Ya, makin luas makin besar gesekannya", "Tidak dipengaruhi oleh luas permukaan benda", "Ya, makin sempit makin besar gesekannya", "Hanya berpengaruh pada benda logam"], answer: 1, explanation: "Sesuai buku IPA Kelas VII hal. 126, gaya gesek dipengaruhi kekasaran permukaan dan berat benda, tetapi tidak dipengaruhi luas permukaan." },
+            { id: 118, teamPool: 4, topic: "Gaya Gesek", q: "Kampas rem pada sepeda maupun sepeda motor memanfaatkan gaya gesek dengan tujuan untuk ....", options: ["Mempercepat putaran roda", "Memperlambat dan menghentikan laju kendaraan", "Menghemat bahan bakar", "Mendinginkan mesin"], answer: 1, explanation: "Gesekan antara kampas rem dan cakram/pelek roda menghambat putaran roda sehingga kendaraan melambat dan berhenti." },
+            { id: 119, teamPool: 4, topic: "Gaya Gesek", q: "Mengapa lantai kamar mandi yang basah dan licin membuat kita mudah terpeleset?", options: ["Karena gaya gravitasi bertambah", "Karena gaya gesek antara telapak kaki dan lantai menjadi sangat kecil", "Karena berat badan bertambah", "Karena air menarik kaki ke depan"], answer: 1, explanation: "Air mengurangi kekasaran permukaan sehingga gaya gesek penahan kaki mengecil dan mudah tergelincir." },
+            { id: 120, teamPool: 4, topic: "Hukum I Newton", q: "Sifat kemalasan suatu benda untuk mengubah posisi diam atau kecepatan geraknya disebut ....", options: ["Gaya gesek kinetis", "Kelembaman", "Percepatan gravitasi", "Resultan vektor"], answer: 1, explanation: "Kelembaman (inersia) adalah sifat benda yang cenderung mempertahankan keadaan diam atau gerak lurus beraturannya." },
+            { id: 121, teamPool: 4, topic: "Hukum I Newton", q: "Benda manakah yang paling sulit didorong dari keadaan diam karena memiliki kelembaman paling besar?", options: ["Bola pingpong (2,7 gram)", "Bola sepak (450 gram)", "Meja kayu (15 kg)", "Lemari besi penuh buku (120 kg)"], answer: 3, explanation: "Semakin besar massa benda (120 kg), semakin besar sifat kelembamannya sehingga paling sulit digerakkan." },
+            { id: 122, teamPool: 4, topic: "Hukum II Newton", q: "Sebuah benda bermassa 8 kg didorong dengan gaya sebesar 32 Newton. Berapakah percepatan yang dialami benda tersebut?", options: ["0,25 m/s²", "4 m/s²", "24 m/s²", "256 m/s²"], answer: 1, explanation: "a = F / m = 32 N / 8 kg = 4 m/s²." },
+            { id: 123, teamPool: 4, topic: "Hukum II Newton", q: "Mobil mainan bermassa 2 kg melaju dengan percepatan 6 m/s². Besar gaya dorong yang bekerja pada mobil mainan tersebut adalah ....", options: ["3 N", "4 N", "8 N", "12 N"], answer: 3, explanation: "F = m × a = 2 kg × 6 m/s² = 12 Newton." },
+            { id: 124, teamPool: 4, topic: "Hukum III Newton", q: "Saat kita memukul tembok dengan tangan, tangan kita terasa sakit. Hal ini terjadi karena ....", options: ["Tembok memberikan gaya reaksi yang sama besar ke tangan kita", "Tembok tidak memiliki gaya gesek", "Gaya gravitasi menarik tangan ke tembok", "Massa tangan lebih besar dari tembok"], answer: 0, explanation: "Sesuai Hukum III Newton, tangan memberi gaya aksi ke tembok dan tembok membalas dengan gaya reaksi sama besar ke tangan." },
+            { id: 125, teamPool: 4, topic: "Teknologi Hukum Newton", q: "Pada eksperimen Aktivitas 4.4 ('Bola dan Kemiringan'), bola yang menggelinding turun di papan miring mengalami percepatan akibat gaya ....", options: ["Gaya magnet", "Gaya gravitasi", "Gaya listrik", "Gaya pegas"], answer: 1, explanation: "Komponen gaya gravitasi bumi sepanjang bidang miring menarik bola sehingga bergerak dipercepat ke bawah." },
+
+            // --- PAKET TIM 6 (No 126 - 150) ---
+            { id: 126, teamPool: 5, topic: "Perpindahan dan Jarak Tempuh", q: "Sebuah titik tempat dimulainya pengamatan atau pengukuran posisi suatu benda yang bergerak disebut ....", options: ["Jarak tempuh", "Titik acuan", "Kelajuan sesaat", "Resultan"], answer: 1, explanation: "Titik acuan adalah posisi awal yang dijadikan patokan untuk menentukan apakah suatu benda berpindah atau bergerak." },
+            { id: 127, teamPool: 5, topic: "Perpindahan dan Jarak Tempuh", q: "Zaki bersepeda ke barat sejauh 120 m, lalu berbalik ke timur sejauh 120 m. Pernyataan yang benar tentang gerak Zaki adalah ....", options: ["Jarak tempuh 0 m, perpindahan 240 m", "Jarak tempuh 240 m, perpindahan 0 m", "Jarak tempuh 120 m, perpindahan 120 m", "Jarak tempuh dan perpindahan sama-sama 240 m"], answer: 1, explanation: "Jarak tempuh = 120 + 120 = 240 m. Karena kembali ke titik awal, perpindahannya = 0 m." },
+            { id: 128, teamPool: 5, topic: "Perpindahan dan Jarak Tempuh", q: "Seorang siswa berjalan dari bangku paling depan ke bangku paling belakang sejauh 8 meter, lalu maju 3 meter ke bangku tengah. Perpindahan siswa dari posisi awal adalah ....", options: ["3 meter", "5 meter", "8 meter", "11 meter"], answer: 1, explanation: "Perpindahan = 8 m ke belakang - 3 m ke depan = 5 meter ke belakang dari bangku paling depan." },
+            { id: 129, teamPool: 5, topic: "Gerak Relatif & Gerak Semu", q: "Contoh peristiwa berikut yang merupakan gerak nyata (bukan gerak semu) adalah ....", options: ["Pohon di tepi jalan tampak berlari saat kita naik bus", "Matahari tampak bergerak dari timur ke barat setiap hari", "Kelereng yang menggelinding di atas lantai dari titik A ke titik B", "Tiang listrik tampak mundur dilihat dari jendela kereta"], answer: 2, explanation: "Kelereng benar-benar mengalami perubahan posisi terhadap lantai, sehingga merupakan gerak nyata." },
+            { id: 130, teamPool: 5, topic: "Gerak Relatif & Gerak Semu", q: "Penumpang pesawat terbang yang sedang melaju di udara dikatakan bergerak apabila titik acuannya adalah ....", options: ["Kursi tempat duduknya di pesawat", "Pramugari yang berdiri diam di kabin", "Bandara atau permukaan tanah di bawahnya", "Meja lipat di depannya"], answer: 2, explanation: "Posisi penumpang terus berubah terhadap bandara/tanah di bawahnya sehingga dikatakan bergerak." },
+            { id: 131, teamPool: 5, topic: "Kelajuan dan Kecepatan", q: "Dua orang siswa berangkat dari rumah yang berdekatan pada pukul 06.00 WIB menuju sekolah yang sama. Siswa pertama naik sepeda tiba pukul 06.15, sedangkan siswa kedua jalan kaki tiba pukul 06.45. Hal ini menunjukkan ....", options: ["Kelajuan sepeda lebih besar daripada kelajuan berjalan kaki", "Jarak rumah siswa kedua lebih jauh", "Waktu tempuh sepeda lebih lama", "Kecepatan berjalan kaki lebih besar"], answer: 0, explanation: "Untuk jarak tempuh yang sama, waktu tempuh yang lebih singkat (15 menit vs 45 menit) berarti kelajuannya lebih besar." },
+            { id: 132, teamPool: 5, topic: "Kelajuan dan Kecepatan", q: "Sebuah perahu motor menempuh jarak 800 meter dalam waktu 40 sekon. Kelajuan perahu motor tersebut adalah ....", options: ["10 m/s", "20 m/s", "40 m/s", "320 m/s"], answer: 1, explanation: "v = s / t = 800 m / 40 s = 20 m/s." },
+            { id: 133, teamPool: 5, topic: "Kelajuan dan Kecepatan", q: "Konversikan kelajuan 36 km/jam menjadi satuan meter per sekon (m/s)!", options: ["5 m/s", "10 m/s", "15 m/s", "36 m/s"], answer: 1, explanation: "36 km/jam = 36.000 m / 3.600 s = 10 m/s." },
+            { id: 134, teamPool: 5, topic: "Percepatan", q: "Sebuah sepeda melaju dengan kecepatan 4 m/s, lalu dikayuh lebih cepat sehingga dalam 3 sekon kecepatannya menjadi 13 m/s. Percepatan sepeda adalah ....", options: ["3 m/s²", "4 m/s²", "9 m/s²", "13 m/s²"], answer: 0, explanation: "a = (vt - v0) / t = (13 - 4) / 3 = 9 / 3 = 3 m/s²." },
+            { id: 135, teamPool: 5, topic: "Percepatan", q: "Manakah di antara peristiwa berikut yang termasuk gerak dipercepat?", options: ["Mobil mengerem saat mendekati polisi tidur", "Bola dilempar vertikal ke atas hingga mencapai titik tertinggi", "Pesawat terbang mulai melaju di landasan pacu sebelum lepas landas", "Sepeda melaju dengan spidometer tetap di angka 20 km/jam"], answer: 2, explanation: "Pesawat yang bersiap lepas landas menambah kecepatannya secara cepat di landasan pacu (gerak dipercepat)." },
+            { id: 136, teamPool: 5, topic: "Konsep Gaya", q: "Satuan Sistem Internasional (SI) untuk besaran gaya adalah ....", options: ["Joule (J)", "Watt (W)", "Newton (N)", "Pascal (Pa)"], answer: 2, explanation: "Satuan SI untuk gaya adalah Newton (N), diambil dari nama ilmuwan Sir Isaac Newton." },
+            { id: 137, teamPool: 5, topic: "Resultan Gaya", q: "Paduan atau gabungan dari dua gaya atau lebih yang bekerja pada suatu benda disebut ....", options: ["Percepatan", "Resultan gaya", "Kelembaman", "Gaya gesek statis"], answer: 1, explanation: "Resultan gaya (R) adalah total atau hasil penjumlahan vektor dari gaya-gaya yang bekerja pada sebuah benda." },
+            { id: 138, teamPool: 5, topic: "Resultan Gaya", q: "Gaya F₁ = 90 N ke kanan, F₂ = 40 N ke kiri, dan F₃ = 20 N ke kiri bekerja pada sebuah peti. Besar resultan gayanya adalah ....", options: ["30 N ke kanan", "30 N ke kiri", "70 N ke kanan", "150 N ke kanan"], answer: 0, explanation: "R = 90 N (kanan) - (40 N + 20 N) (kiri) = 90 - 60 = 30 N ke kanan." },
+            { id: 139, teamPool: 5, topic: "Macam-Macam Gaya", q: "Pegas suspensi (shockbreaker) pada sepeda motor berfungsi meredam guncangan saat melewati jalan berlubang dengan memanfaatkan ....", options: ["Gaya listrik", "Gaya pegas (elastisitas)", "Gaya magnet", "Gaya mesin"], answer: 1, explanation: "Gaya pegas bersifat elastis sehingga mampu menyerap dan meredam getaran saat kendaraan melewati jalan tidak rata." },
+            { id: 140, teamPool: 5, topic: "Gaya Gesek", q: "Saat kita mendorong meja kayu di atas lantai keramik, terdengar bunyi gesekan dan terasa sedikit getaran. Hal ini disebabkan oleh ....", options: ["Gaya gravitasi", "Gaya gesek antara kaki meja dan permukaan lantai", "Gaya magnet bumi", "Gaya listrik statis"], answer: 1, explanation: "Sentuhan antara dua permukaan yang tidak sepenuhnya licin (kaki meja dan lantai) menimbulkan gaya gesek." },
+            { id: 141, teamPool: 5, topic: "Gaya Gesek", q: "Perbedaan utama antara gaya gesek statis dan gaya gesek kinetis terletak pada ....", options: ["Arah gayanya", "Keadaan benda: statis saat benda belum bergerak, kinetis saat benda sudah bergerak", "Warna benda yang bergesekan", "Bentuk lantai"], answer: 1, explanation: "Gaya gesek statis bekerja ketika benda masih diam, sedangkan gaya gesek kinetis bekerja setelah benda bergerak." },
+            { id: 142, teamPool: 5, topic: "Gaya Gesek", q: "Contoh gaya gesek yang MERUGIKAN dalam kehidupan sehari-hari adalah ....", options: ["Gesekan antara telapak sepatu dan jalan saat berjalan", "Gesekan antara korek api dan bidang geseknya hingga menyala", "Gesekan antar-komponen mesin kendaraan yang membuatnya cepat panas dan aus", "Gesekan antara rem dan roda sepeda saat berhenti"], answer: 2, explanation: "Gesekan komponen logam di dalam mesin menimbulkan panas berlebih dan keausan sehingga merugikan." },
+            { id: 143, teamPool: 5, topic: "Hukum I Newton", q: "Bunyi Hukum I Newton menyatakan bahwa jika resultan gaya pada suatu benda sama dengan nol, maka benda yang mula-mula bergerak lurus beraturan akan ....", options: ["Segera berhenti", "Tetap bergerak lurus beraturan dengan kecepatan tetap", "Berbelok arah secara tiba-tiba", "Mengalami percepatan terus-menerus"], answer: 1, explanation: "Sesuai Hukum I Newton, benda yang sedang bergerak lurus beraturan akan mempertahankan kecepatan tetapnya jika R = 0." },
+            { id: 144, teamPool: 5, topic: "Hukum I Newton", q: "Besaran fisika yang menjadi ukuran tingkat kelembaman (inersia) suatu benda adalah ....", options: ["Kecepatan benda", "Massa benda", "Volume benda", "Luas permukaan benda"], answer: 1, explanation: "Massa merupakan ukuran kelembaman benda; semakin besar massanya, semakin besar kelembamannya." },
+            { id: 145, teamPool: 5, topic: "Hukum II Newton", q: "Persamaan matematis yang tepat untuk menyatakan Hukum II Newton adalah ....", options: ["F = m / a", "F = m × a", "a = m / F", "m = F × a"], answer: 1, explanation: "Hukum II Newton dirumuskan sebagai F = m × a (Gaya = massa × percepatan)." },
+            { id: 146, teamPool: 5, topic: "Hukum II Newton", q: "Sebuah benda bermassa 10 kg ditarik dengan gaya 45 Newton. Percepatan yang dialami benda tersebut adalah ....", options: ["0,45 m/s²", "4,5 m/s²", "35 m/s²", "450 m/s²"], answer: 1, explanation: "a = F / m = 45 N / 10 kg = 4,5 m/s²." },
+            { id: 147, teamPool: 5, topic: "Hukum III Newton", q: "Ketika balon yang ditiup penuh dilepaskan ikatannya, udara menyembur keluar ke bawah dan balon melesat terbang ke atas. Peristiwa ini menerapkan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya Gesek Statis"], answer: 2, explanation: "Semburan udara keluar adalah gaya aksi, dan dorongan balon meluncur berlawanan arah adalah gaya reaksi (Hukum III Newton)." },
+            { id: 148, teamPool: 5, topic: "Hukum III Newton", q: "Apakah gaya aksi dan gaya reaksi bekerja pada satu benda yang sama?", options: ["Ya, selalu pada satu benda yang sama", "Tidak, gaya aksi dan reaksi bekerja pada dua benda yang berbeda", "Hanya jika bendanya diam", "Hanya jika massanya sama"], answer: 1, explanation: "Sesuai buku teks hal. 132, gaya aksi dan reaksi selalu bekerja pada dua benda yang berbeda sehingga tidak saling meniadakan." },
+            { id: 149, teamPool: 5, topic: "Teknologi Hukum Newton", q: "Pada percobaan penyiram tanaman kaleng bekas (Aktivitas 4.5), mengapa lubang paku pada bagian bawah kaleng harus dimiringkan ke satu arah?", options: ["Agar air tidak tumpah", "Agar pancaran air keluar searah tangensial sehingga menghasilkan gaya reaksi putaran pada kaleng", "Agar kaleng menjadi lebih berat", "Agar air cepat habis tanpa berputar"], answer: 1, explanation: "Lubang miring ke satu arah membuat pancaran air menghasilkan gaya aksi tangensial yang memutar kaleng ke arah sebaliknya." },
+            { id: 150, teamPool: 5, topic: "Teknologi Hukum Newton", q: "Saat seseorang melompat dari atas perahu kecil ke dermaga, perahu tampak terdorong menjauhi dermaga. Hal ini terjadi karena ....", options: ["Kaki pelompat memberikan gaya aksi pada perahu ke belakang", "Perahu ditarik arus sungai", "Massa perahu terlalu berat", "Gaya gravitasi menarik perahu ke samping"], answer: 0, explanation: "Saat kaki menolak perahu untuk melompat maju (reaksi), perahu menerima gaya dorong ke belakang (aksi) sesuai Hukum III Newton." },
+
+            // --- PAKET TIM 7 (No 151 - 175) ---
+            { id: 151, teamPool: 6, topic: "Perpindahan dan Jarak Tempuh", q: "Sebuah partikel bergerak pada sumbu-x dari posisi awal x₀ = -10 m menuju posisi akhir xₜ = +25 m. Besar perpindahan partikel tersebut adalah ....", options: ["15 meter", "25 meter", "35 meter", "-35 meter"], answer: 2, explanation: "Δx = xₜ - x₀ = 25 - (-10) = 25 + 10 = 35 meter ke arah sumbu-x positif." },
+            { id: 152, teamPool: 6, topic: "Perpindahan dan Jarak Tempuh", q: "Manakah pernyataan yang paling tepat membedakan jarak tempuh dan perpindahan?", options: ["Jarak tempuh besaran vektor, perpindahan besaran skalar", "Jarak tempuh bergantung pada panjang lintasan, perpindahan hanya bergantung pada posisi awal dan akhir", "Jarak tempuh selalu lebih kecil dari perpindahan", "Perpindahan tidak memiliki satuan"], answer: 1, explanation: "Jarak tempuh menghitung seluruh panjang lintasan yang dilewati, sedangkan perpindahan ditarik garis lurus dari titik awal ke titik akhir." },
+            { id: 153, teamPool: 6, topic: "Perpindahan dan Jarak Tempuh", q: "Seekor semut merayap di sepanjang tepi penggaris dari angka 5 cm menuju angka 28 cm, lalu berbalik hingga berhenti di angka 18 cm. Jarak tempuh semut adalah ....", options: ["13 cm", "23 cm", "33 cm", "41 cm"], answer: 2, explanation: "Jarak tempuh = |28 - 5| + |18 - 28| = 23 cm + 10 cm = 33 cm." },
+            { id: 154, teamPool: 6, topic: "Gerak Relatif & Gerak Semu", q: "Bumi selalu berputar mengelilingi Matahari pada orbitnya. Jika Matahari dijadikan titik acuan, maka Bumi dikatakan ....", options: ["Diam mutlak", "Bergerak", "Bergerak semu", "Tidak memiliki kecepatan"], answer: 1, explanation: "Terhadap Matahari sebagai titik acuan, Bumi mengalami perubahan posisi terus-menerus sehingga Bumi dikatakan bergerak." },
+            { id: 155, teamPool: 6, topic: "Gerak Relatif & Gerak Semu", q: "Ayah mengendarai mobil mengantar Rafi ke sekolah. Pernyataan berikut yang BENAR mengenai gerak relatif adalah ....", options: ["Rafi bergerak terhadap kursi mobil", "Ayah diam terhadap mobil, tetapi bergerak terhadap gedung sekolah", "Mobil diam terhadap jalan raya", "Gedung sekolah bergerak nyata mendekati mobil"], answer: 1, explanation: "Ayah tidak berpindah tempat terhadap mobil (diam terhadap mobil), tetapi posisinya berubah terhadap gedung sekolah (bergerak terhadap sekolah)." },
+            { id: 156, teamPool: 6, topic: "Kelajuan dan Kecepatan", q: "Sebuah mobil menempuh perjalanan sejauh 180 km dalam waktu 3 jam. Kelajuan rata-rata mobil tersebut adalah ....", options: ["30 km/jam", "60 km/jam", "90 km/jam", "540 km/jam"], answer: 1, explanation: "v̄ = Σs / Σt = 180 km / 3 jam = 60 km/jam." },
+            { id: 157, teamPool: 6, topic: "Kelajuan dan Kecepatan", q: "Seorang pelari menempuh lintasan lurus 400 meter dalam waktu 50 sekon. Kecepatan pelari tersebut adalah ....", options: ["4 m/s", "8 m/s", "20 m/s", "350 m/s"], answer: 1, explanation: "v = Δx / Δt = 400 m / 50 s = 8 m/s." },
+            { id: 158, teamPool: 6, topic: "Kelajuan dan Kecepatan", q: "Mengapa kelajuan kendaraan di jalan raya yang macet lebih tepat dinyatakan dengan kelajuan rata-rata daripada kelajuan konstan?", options: ["Karena mobil tidak pernah bergerak", "Karena dalam kenyataannya laju kendaraan berubah-ubah (kadang cepat, kadang lambat/berhenti)", "Karena spidometer selalu rusak saat macet", "Karena jaraknya selalu nol"], answer: 1, explanation: "Pada perjalanan nyata, tiap bagian jarak tidak ditempuh dalam waktu yang sama sehingga digunakan konsep kelajuan rata-rata." },
+            { id: 159, teamPool: 6, topic: "Percepatan", q: "Sebuah bola menggelinding dengan kecepatan awal 2 m/s. Setelah 4 sekon, kecepatannya menjadi 14 m/s. Percepatan bola adalah ....", options: ["2 m/s²", "3 m/s²", "3,5 m/s²", "12 m/s²"], answer: 1, explanation: "a = (vt - v0) / t = (14 - 2) / 4 = 12 / 4 = 3 m/s²." },
+            { id: 160, teamPool: 6, topic: "Percepatan", q: "Jika sudut kemiringan papan luncur diperbesar, maka benda yang dilepaskan dari atas papan akan meluncur dengan percepatan yang ....", options: ["Lebih kecil", "Lebih besar (semakin cepat tiba di bawah)", "Sama persis", "Nol"], answer: 1, explanation: "Semakin besar sudut kemiringan bidang miring, komponen gaya gravitasi penarik benda semakin besar sehingga percepatannya bertambah." },
+            { id: 161, teamPool: 6, topic: "Konsep Gaya", q: "Ketika pemain sepak bola menendang bola yang sedang diam di titik penalti, pengaruh gaya yang terjadi pada bola adalah ....", options: ["Benda diam menjadi bergerak", "Benda bergerak menjadi diam", "Massa bola bertambah", "Gaya gravitasi hilang"], answer: 0, explanation: "Tendangan memberikan gaya dorong yang menyebabkan bola yang semula diam menjadi bergerak." },
+            { id: 162, teamPool: 6, topic: "Resultan Gaya", q: "Empat anak bermain tarik tambang. Kelompok kiri menarik dengan gaya 150 N dan 120 N. Kelompok kanan menarik dengan gaya 140 N dan 110 N. Resultan gayanya adalah ....", options: ["20 N ke kanan", "20 N ke kiri", "250 N ke kanan", "270 N ke kiri"], answer: 1, explanation: "Total kiri = 150 + 120 = 270 N. Total kanan = 140 + 110 = 250 N. Resultan R = 270 - 250 = 20 N ke kiri." },
+            { id: 163, teamPool: 6, topic: "Resultan Gaya", q: "Dalam penggambaran diagram vektor gaya, tanda minus (-) pada gaya -F₂ menunjukkan bahwa gaya tersebut memiliki ....", options: ["Nilai lebih kecil dari nol", "Arah yang berlawanan dengan gaya acuan positif", "Massa negatif", "Kecepatan nol"], answer: 1, explanation: "Tanda positif dan negatif pada vektor gaya menunjukkan arah gaya yang saling berlawanan (misal kanan + dan kiri -)." },
+            { id: 164, teamPool: 6, topic: "Macam-Macam Gaya", q: "Kendaraan bermotor dan kereta api konvensional dapat bergerak menempuh jarak jauh karena adanya tenaga penggerak berupa ....", options: ["Gaya listrik statis", "Gaya mesin", "Gaya pegas", "Gaya magnet bumi"], answer: 1, explanation: "Gaya mesin dihasilkan oleh kerja mesin kendaraan untuk menggerakkan roda." },
+            { id: 165, teamPool: 6, topic: "Gaya Gesek", q: "Sebuah balok ditarik di atas lantai kaca yang licin dibandingkan di atas permukaan aspal yang kasar. Gaya gesek yang lebih besar terjadi pada ....", options: ["Lantai kaca", "Permukaan aspal yang kasar", "Keduanya sama besar", "Tidak ada gaya gesek di keduanya"], answer: 1, explanation: "Permukaan aspal lebih kasar daripada kaca, sehingga menimbulkan gaya gesek yang lebih besar." },
+            { id: 166, teamPool: 6, topic: "Gaya Gesek", q: "Jika benda bermassa 20 kg diletakkan di atas lantai dan dibandingkan dengan benda sejenis bermassa 5 kg di lantai yang sama, benda yang memiliki gaya gesek lebih besar adalah ....", options: ["Benda 5 kg", "Benda 20 kg karena beratnya lebih besar", "Keduanya sama besar", "Tergantung warna bendanya"], answer: 1, explanation: "Gaya gesek dipengaruhi oleh berat benda; benda yang lebih berat menekan permukaan lebih kuat sehingga gaya geseknya lebih besar." },
+            { id: 167, teamPool: 6, topic: "Gaya Gesek", q: "Penerjun payung membuka parasutnya saat mendekati tanah agar laju jatuhnya melambat. Hal ini memanfaatkan gaya gesek antara parasut dengan ....", options: ["Air hujan", "Udara", "Awan", "Gravitasi"], answer: 1, explanation: "Parasut yang lebar menangkap hambatan/gaya gesek udara yang besar ke atas sehingga memperlambat kecepatan jatuh penerjun." },
+            { id: 168, teamPool: 6, topic: "Hukum I Newton", q: "Gerak benda-benda di alam semesta umumnya bersifat deterministik, yang artinya ....", options: ["Tidak dapat diprediksi sama sekali", "Lintasan, kecepatan, dan percepatannya dapat dihitung atau diramalkan melalui hukum alam", "Selalu bergerak melingkar", "Tidak memerlukan gaya penyebab"], answer: 1, explanation: "Sesuai buku teks hal. 128, sifat deterministik berarti gerak benda mengikuti hukum alam pasti sehingga lintasan dan percepatannya dapat dihitung." },
+            { id: 169, teamPool: 6, topic: "Hukum I Newton", q: "Sebuah koin diletakkan di atas selembar kartu di atas mulut gelas. Ketika kartu disentil dengan cepat secara mendatar, koin jatuh masuk ke dalam gelas. Ini membuktikan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya Magnet"], answer: 0, explanation: "Koin mempertahankan keadaan diamnya akibat kelembaman (Hukum I Newton) saat kartu di bawahnya ditarik cepat, lalu jatuh oleh gravitasi." },
+            { id: 170, teamPool: 6, topic: "Hukum II Newton", q: "Jika dua benda diberikan gaya yang berbeda, benda dengan massa yang sama akan mengalami percepatan lebih besar apabila diberikan gaya yang ....", options: ["Lebih kecil", "Lebih besar", "Nol", "Berlawanan arah"], answer: 1, explanation: "Percepatan berbanding lurus dengan gaya (a = F/m); makin besar gaya yang diberikan, makin besar percepatan benda." },
+            { id: 171, teamPool: 6, topic: "Hukum II Newton", q: "Sebuah gaya sebesar 48 Newton bekerja pada benda bermassa 12 kg. Percepatan yang timbul pada benda adalah ....", options: ["2 m/s²", "4 m/s²", "36 m/s²", "60 m/s²"], answer: 1, explanation: "a = F / m = 48 N / 12 kg = 4 m/s²." },
+            { id: 172, teamPool: 6, topic: "Hukum III Newton", q: "Seseorang berdiri di atas papan seluncur (skateboard) lalu mendorong tembok di depannya. Akibatnya orang tersebut meluncur mundur menjauhi tembok. Ini membuktikan ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya gravitasi"], answer: 2, explanation: "Tangan mendorong tembok (gaya aksi) dan tembok mendorong orang beserta papan seluncur ke belakang (gaya reaksi)." },
+            { id: 173, teamPool: 6, topic: "Hukum III Newton", q: "Buku IPA bermassa 1 kg terletak diam di atas meja. Gaya berat buku menekan meja ke bawah sebesar 10 N. Gaya reaksi yang diberikan meja terhadap buku adalah ....", options: ["0 N", "10 N ke arah bawah", "10 N ke arah atas", "20 N ke arah atas"], answer: 2, explanation: "Sesuai Hukum III Newton, meja memberikan gaya reaksi (gaya normal) yang sama besar (10 N) dengan arah berlawanan (ke atas)." },
+            { id: 174, teamPool: 6, topic: "Teknologi Hukum Newton", q: "Mengapa roket tetap dapat meluncur dan bermanuver di ruang angkasa yang hampa udara (tidak ada udara)?", options: ["Karena sayap roket mengepak di ruang hampa", "Karena semburan gas buang roket ke belakang memberikan gaya reaksi dorong ke depan (Hukum III Newton)", "Karena ditarik magnet bulan", "Karena massa roket nol di ruang angkasa"], answer: 1, explanation: "Prinsip aksi-reaksi Hukum III Newton antara roket dan gas hasil pembakaran yang disemburkan tidak membutuhkan udara luar." },
+            { id: 175, teamPool: 6, topic: "Teknologi Hukum Newton", q: "Dalam proyek pembuatan roket korek api, fungsi klip kertas yang diluruskan sebagian adalah sebagai ....", options: ["Bahan bakar roket", "Landasan peluncur pengarah sudut terbang roket", "Pemberat agar roket tidak terbang", "Penghasil listrik"], answer: 1, explanation: "Klip kertas dibentuk menjadi penyangga/landasan peluncur agar roket korek api mengarah ke atas dengan stabil." },
+
+            // --- PAKET TIM 8 (No 176 - 200) ---
+            { id: 176, teamPool: 7, topic: "Perpindahan dan Jarak Tempuh", q: "Seorang siswa berpindah tempat duduk dari meja paling depan ke meja paling belakang sejauh 6 meter, kemudian kembali ke meja paling depan. Perpindahan total siswa adalah ....", options: ["0 meter", "6 meter", "12 meter", "36 meter"], answer: 0, explanation: "Karena kembali ke posisi awal duduknya (meja paling depan), perpindahannya bernilai 0 meter." },
+            { id: 177, teamPool: 7, topic: "Perpindahan dan Jarak Tempuh", q: "Pada perjalanan pergi-pulang dari rumah ke sekolah yang berjarak 200 m, perbandingan antara jarak tempuh dan perpindahan adalah ....", options: ["Jarak tempuh 400 m, perpindahan 0 m", "Jarak tempuh 0 m, perpindahan 400 m", "Jarak tempuh 200 m, perpindahan 200 m", "Jarak tempuh 400 m, perpindahan 400 m"], answer: 0, explanation: "Jarak tempuh = 200 m + 200 m = 400 m, sedangkan perpindahan = 0 m karena kembali ke rumah." },
+            { id: 178, teamPool: 7, topic: "Perpindahan dan Jarak Tempuh", q: "Andi berjalan ke utara sejauh 6 meter, lalu berbelok ke timur sejauh 8 meter. Berapakah besar perpindahan lurus Andi dari titik awal?", options: ["2 meter", "10 meter", "14 meter", "48 meter"], answer: 1, explanation: "Menggunakan rumus Pythagoras: √(6² + 8²) = √(36 + 64) = √100 = 10 meter." },
+            { id: 179, teamPool: 7, topic: "Gerak Relatif & Gerak Semu", q: "Mengapa seorang pengamat yang berdiri di trotoar melihat penumpang di dalam bus yang melaju sebagai benda yang bergerak?", options: ["Karena penumpang berlari di dalam bus", "Karena jarak dan posisi penumpang berubah terhadap pengamat di trotoar", "Karena trotoar ikut bergerak", "Karena bus berhenti di halte"], answer: 1, explanation: "Pengamat di trotoar menjadi titik acuan diam, sehingga penumpang yang terbawa bus mengalami perubahan posisi terhadapnya." },
+            { id: 180, teamPool: 7, topic: "Gerak Relatif & Gerak Semu", q: "Benda yang sebenarnya diam, namun oleh pengamat yang berada di dalam kendaraan bergerak tampak seolah-olah bergerak mundur disebut mengalami ....", options: ["Gerak dipercepat", "Gerak semu", "Perpindahan vektor", "Kelembaman"], answer: 1, explanation: "Pengertian gerak semu adalah gerak yang tidak sebenarnya, terjadi akibat pengamat berada dalam sistem yang bergerak." },
+            { id: 181, teamPool: 7, topic: "Kelajuan dan Kecepatan", q: "Sebuah sepeda menempuh jarak 240 meter dalam waktu 30 sekon. Berapakah kelajuan sepeda tersebut?", options: ["6 m/s", "8 m/s", "12 m/s", "210 m/s"], answer: 1, explanation: "v = s / t = 240 m / 30 s = 8 m/s." },
+            { id: 182, teamPool: 7, topic: "Kelajuan dan Kecepatan", q: "Jika sebuah mobil melaju dengan kecepatan tetap 25 m/s, waktu yang dibutuhkan untuk menempuh jarak 1.000 meter adalah ....", options: ["25 sekon", "40 sekon", "250 sekon", "25.000 sekon"], answer: 1, explanation: "t = s / v = 1.000 m / 25 m/s = 40 sekon." },
+            { id: 183, teamPool: 7, topic: "Kelajuan dan Kecepatan", q: "Manakah pernyataan berikut yang menyatakan besaran KECEPATAN (bukan sekadar kelajuan)?", options: ["Mobil melaju 60 km/jam", "Pelari berlari 8 m/s", "Kereta api melaju 80 km/jam ke arah timur", "Sepeda bergerak menempuh 100 meter"], answer: 2, explanation: "Kecepatan adalah besaran vektor sehingga harus mencantumkan nilai, satuan, dan arah gerak ('ke arah timur')." },
+            { id: 184, teamPool: 7, topic: "Percepatan", q: "Sebuah kereta api bergerak dari kecepatan 5 m/s menjadi 25 m/s dalam selang waktu 10 sekon. Percepatan kereta api adalah ....", options: ["2 m/s²", "2,5 m/s²", "3 m/s²", "20 m/s²"], answer: 0, explanation: "a = (vt - v0) / t = (25 - 5) / 10 = 20 / 10 = 2 m/s²." },
+            { id: 185, teamPool: 7, topic: "Percepatan", q: "Benda yang dilempar lurus ke atas mengalami perlambatan hingga berhenti sesaat di titik tertinggi karena ditarik oleh ....", options: ["Gaya gesek tanah", "Gaya gravitasi bumi ke bawah", "Gaya pegas", "Gaya magnet"], answer: 1, explanation: "Gaya gravitasi bumi bekerja ke arah bawah (berlawanan dengan arah lemparan ke atas) sehingga memperlambat gerak benda." },
+            { id: 186, teamPool: 7, topic: "Konsep Gaya", q: "Berikut ini yang BUKAN merupakan akibat dari bekerjanya gaya pada sebuah benda adalah ....", options: ["Benda diam menjadi bergerak", "Benda bergerak berubah arah", "Benda berubah bentuknya", "Massa benda berubah menjadi dua kali lipat"], answer: 3, explanation: "Gaya dapat mengubah kecepatan, arah gerak, dan bentuk benda, tetapi tidak mengubah massa benda." },
+            { id: 187, teamPool: 7, topic: "Resultan Gaya", q: "Tiga orang mendorong mobil mogok ke depan dengan gaya masing-masing 150 N, 200 N, dan 150 N. Besar resultan gaya dorong tersebut adalah ....", options: ["200 N", "350 N", "500 N", "650 N"], answer: 2, explanation: "Ketiga gaya searah sehingga dijumlahkan: R = 150 + 200 + 150 = 500 N." },
+            { id: 188, teamPool: 7, topic: "Resultan Gaya", q: "Sebuah benda ditarik ke kanan dengan gaya 85 N dan ditarik ke kiri dengan gaya 110 N. Ke arah manakah benda akan bergerak dan berapa resultannya?", options: ["25 N ke kanan", "25 N ke kiri", "195 N ke kiri", "195 N ke kanan"], answer: 1, explanation: "Gaya ke kiri lebih besar dari ke kanan: R = 110 N (kiri) - 85 N (kanan) = 25 N ke arah kiri." },
+            { id: 189, teamPool: 7, topic: "Macam-Macam Gaya", q: "Kipas angin di ruang kelas dapat berputar kencang saat dihubungkan ke stopkontak karena energi listrik diubah menjadi gerak melalui ....", options: ["Gaya pegas", "Gaya listrik dan gaya magnet pada motor kipas", "Gaya gravitasi", "Gaya otot"], answer: 1, explanation: "Motor listrik pada kipas angin memanfaatkan interaksi gaya listrik dan gaya magnet untuk memutar baling-baling." },
+            { id: 190, teamPool: 7, topic: "Gaya Gesek", q: "Mengapa sepatu pemain sepak bola dilengkapi dengan pul (tonjolan-tonjolan di bagian bawah sol)?", options: ["Agar sepatu menjadi lebih ringan", "Untuk memperbesar gaya gesek dengan rumput lapangan agar pemain tidak mudah terpeleset saat berlari", "Untuk mengurangi gaya gravitasi", "Agar bola mudah menempel di sepatu"], answer: 1, explanation: "Pul sepatu memperbesar cengkeraman/gaya gesek pada rumput lapangan sehingga pemain stabil saat berlari kencang." },
+            { id: 191, teamPool: 7, topic: "Gaya Gesek", q: "Untuk mendorong sebuah lemari berat agar mulai bergerak dibutuhkan gaya minimal 120 N. Setelah lemari bergerak, untuk menjaganya tetap meluncur hanya dibutuhkan gaya 90 N. Angka 120 N menunjukkan besarnya ....", options: ["Gaya gesek kinetis", "Gaya gesek statis maksimum", "Gaya berat lemari", "Resultan gaya akhir"], answer: 1, explanation: "Gaya gesek statis maksimum adalah batas gaya minimum yang harus dilampaui agar benda diam mulai bergerak." },
+            { id: 192, teamPool: 7, topic: "Gaya Gesek", q: "Memberikan bedak tabur pada papan permainan karambol bertujuan untuk ....", options: ["Memperbesar gaya gesek agar biji karambol berhenti", "Memperkecil gaya gesek sehingga biji karambol meluncur lebih licin dan cepat", "Menambah massa papan karambol", "Mengubah arah gravitasi"], answer: 1, explanation: "Butiran halus bedak mengurangi gesekan antara keping karambol dan permukaan papan kayu." },
+            { id: 193, teamPool: 7, topic: "Hukum I Newton", q: "Jika tidak ada gaya luar yang bekerja pada suatu benda di ruang angkasa yang jauh dari planet mana pun, benda yang sedang bergerak lurus akan ....", options: ["Berhenti dengan sendirinya", "Terus bergerak lurus selamanya dengan kecepatan tetap", "Berputar-putar di tempat", "Jatuh ke bawah"], answer: 1, explanation: "Hukum I Newton menjamin bahwa tanpa gaya pengganggu (R = 0), benda bergerak akan terus bergerak lurus beraturan selamanya." },
+            { id: 194, teamPool: 7, topic: "Hukum I Newton", q: "Istilah lain dari Hukum I Newton yang menggambarkan kecenderungan benda mempertahankan keadaan geraknya adalah ....", options: ["Hukum Aksi-Reaksi", "Hukum Kelembaman (Inersia)", "Hukum Gravitasi Universal", "Hukum Kekekalan Energi"], answer: 1, explanation: "Hukum I Newton dikenal luas sebagai Hukum Kelembaman atau Hukum Inersia." },
+            { id: 195, teamPool: 7, topic: "Hukum II Newton", q: "Sebuah gaya 36 Newton bekerja pada benda bermassa 9 kg. Percepatan yang dialami benda tersebut adalah ....", options: ["0,25 m/s²", "4 m/s²", "27 m/s²", "45 m/s²"], answer: 1, explanation: "a = F / m = 36 N / 9 kg = 4 m/s²." },
+            { id: 196, teamPool: 7, topic: "Hukum II Newton", q: "Sebuah gerobak bermassa 15 kg didorong dengan percepatan 2 m/s². Berapakah besar gaya dorong yang diberikan?", options: ["7,5 N", "13 N", "17 N", "30 N"], answer: 3, explanation: "F = m × a = 15 kg × 2 m/s² = 30 Newton." },
+            { id: 197, teamPool: 7, topic: "Hukum III Newton", q: "Rumus singkat yang menyatakan hubungan besar dan arah antara gaya aksi dan gaya reaksi adalah ....", options: ["F_aksi = F_reaksi", "F_aksi = -F_reaksi", "F_aksi + F_reaksi = m × a", "F_aksi = 0"], answer: 1, explanation: "Sesuai buku teks hal. 132 persamaan (9): F_aksi = -F_reaksi (sama besar, berlawanan arah)." },
+            { id: 198, teamPool: 7, topic: "Hukum III Newton", q: "Seekor cumi-cumi menyemprotkan air dari dalam tubuhnya ke arah belakang sehingga tubuhnya melesat cepat ke depan. Peristiwa ini merupakan contoh alami dari ....", options: ["Hukum I Newton", "Hukum II Newton", "Hukum III Newton", "Gaya pegas"], answer: 2, explanation: "Semprotan air ke belakang adalah gaya aksi, dan dorongan tubuh cumi-cumi melesat ke depan adalah gaya reaksi (Hukum III Newton)." },
+            { id: 199, teamPool: 7, topic: "Teknologi Hukum Newton", q: "Dalam proyek akhir bab membuat roket korek api, bagian kepala korek api dibungkus rapat dengan aluminium foil kecuali menyisakan celah kecil di bagian batang agar ....", options: ["Korek api tidak terbakar", "Gas hasil pembakaran menyembur keluar melalui satu celah sempit ke bawah sebagai gaya aksi pendorong roket", "Aluminium foil meleleh seluruhnya", "Roket menjadi sangat berat"], answer: 1, explanation: "Celah sempit berfungsi sebagai nosel pembuangan gas panas bertekanan tinggi ke bawah (aksi) sehingga mendorong roket naik (reaksi)." },
+            { id: 200, teamPool: 7, topic: "Teknologi Hukum Newton", q: "Mengapa pada percobaan penyiram air berputar dari kaleng bekas (Aktivitas 4.5), kecepatan putaran kaleng semakin lambat ketika tinggi air di dalam kaleng semakin berkurang?", options: ["Karena massa kaleng bertambah", "Karena tekanan air mengecil sehingga gaya pancaran air (aksi) dan gaya putar (reaksi) ikut mengecil", "Karena lubang kaleng tertutup sendiri", "Karena gaya gravitasi menghilang"], answer: 1, explanation: "Saat tinggi air berkurang, tekanan hidrostatis mengecil sehingga pancaran air melemah dan gaya reaksi putaran kaleng melambat." }
+        ];
+
+        // Gabungkan seluruh 200 soal unik (8 tim × 25 soal berbeda)
+        const MASTER_QUESTIONS = [...BASE_QUESTIONS_100, ...EXTRA_QUESTIONS_100];
+
+        // =========================================================================
+        // 2. KONFIGURASI 8 TIM (TEMA ORANYE & BIRU VARIATIF) & STATE PERMAINAN
+        // =========================================================================
+        const TEAM_CONFIGS = [
+            { id: 0, name: "TIM 1 (BIRU LAUT)", colorBg: "bg-blue-700", colorLight: "bg-blue-50", colorBorder: "border-blue-400", colorText: "text-blue-800", badge: "🌊" },
+            { id: 1, name: "TIM 2 (ORANYE API)", colorBg: "bg-orange-600", colorLight: "bg-orange-50", colorBorder: "border-orange-400", colorText: "text-orange-700", badge: "🔥" },
+            { id: 2, name: "TIM 3 (BIRU LANGIT)", colorBg: "bg-sky-600", colorLight: "bg-sky-50", colorBorder: "border-sky-400", colorText: "text-sky-800", badge: "⚡" },
+            { id: 3, name: "TIM 4 (ORANYE SENJA)", colorBg: "bg-amber-600", colorLight: "bg-amber-50", colorBorder: "border-amber-400", colorText: "text-amber-800", badge: "☀️" },
+            { id: 4, name: "TIM 5 (BIRU INDIGO)", colorBg: "bg-indigo-700", colorLight: "bg-indigo-50", colorBorder: "border-indigo-400", colorText: "text-indigo-800", badge: "🚀" },
+            { id: 5, name: "TIM 6 (ORANYE JERUK)", colorBg: "bg-orange-500", colorLight: "bg-orange-50", colorBorder: "border-orange-300", colorText: "text-orange-700", badge: "🍊" },
+            { id: 6, name: "TIM 7 (BIRU TOSKA)", colorBg: "bg-cyan-700", colorLight: "bg-cyan-50", colorBorder: "border-cyan-400", colorText: "text-cyan-800", badge: "💎" },
+            { id: 7, name: "TIM 8 (ORANYE BATA)", colorBg: "bg-red-600", colorLight: "bg-orange-50", colorBorder: "border-orange-400", colorText: "text-red-700", badge: "☄️" }
+        ];
+
+        const TEACHER_PIN = "1234";
+        let soundEnabled = true;
+        let isTeacherUnlocked = false;
+        let activeTeamId = null;
+        let selectedTeacherTeamId = 0;
+        let isTransitioning = false;
+
+        let gameState = {
+            teams: []
+        };
+
+        // Fungsi mengacak array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Inisialisasi state awal untuk 8 tim dengan 25 soal unik teracak per tim
+        function createInitialGameState() {
+            return {
+                teams: TEAM_CONFIGS.map(cfg => {
+                    const teamQuestions = MASTER_QUESTIONS.filter(q => q.teamPool === cfg.id);
+                    const randomizedIds = shuffleArray(teamQuestions.map(q => q.id));
+                    return {
+                        id: cfg.id,
+                        customName: cfg.name,
+                        questionOrder: randomizedIds, // 25 ID soal teracak khusus tim ini
+                        currentIndex: 0,
+                        score: 0,
+                        correctCount: 0,
+                        wrongCount: 0,
+                        completed: false,
+                        history: []
+                    };
+                })
+            };
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem("mtsn1_gerak_gaya_8tim_v1");
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && Array.isArray(parsed.teams) && parsed.teams.length === 8) {
+                        gameState = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("Gagal memuat penyimpanan lokal:", e);
+            }
+            gameState = createInitialGameState();
+            saveGameState();
+        }
+
+        function saveGameState() {
+            try {
+                localStorage.setItem("mtsn1_gerak_gaya_8tim_v1", JSON.stringify(gameState));
+            } catch (e) {
+                console.warn("Gagal menyimpan progres:", e);
+            }
+        }
+
+        // =========================================================================
+        // 3. EFEK SUARA INTERAKTIF (TONE.JS)
+        // =========================================================================
+        function playSoundEffect(type) {
+            if (!soundEnabled || typeof Tone === "undefined") return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const synth = new Tone.Synth().toDestination();
+                const now = Tone.now();
+                if (type === 'correct') {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.09);
+                    synth.triggerAttackRelease("G5", "8n", now + 0.18);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease("E3", "8n", now);
+                    synth.triggerAttackRelease("C3", "4n", now + 0.12);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease("A4", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "4n", now + 0.3);
+                }
+            } catch (err) {
+                // Abaikan jika browser memblokir audio
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById("soundIcon").textContent = soundEnabled ? "🔊" : "🔇";
+            if (soundEnabled) playSoundEffect('click');
+        }
+
+        // =========================================================================
+        // 4. RENDER LOBBY & PAPAN SKOR 8 TIM
+        // =========================================================================
+        function renderLobby() {
+            const container = document.getElementById("teamCardsContainer");
+            container.innerHTML = "";
+
+            gameState.teams.forEach((team, idx) => {
+                const cfg = TEAM_CONFIGS[idx];
+                const answeredCount = team.history.length;
+                const progressPercent = Math.round((answeredCount / 25) * 100);
+
+                let statusBadge = "";
+                let buttonHtml = "";
+
+                if (team.completed) {
+                    statusBadge = `<span class="bg-blue-100 text-blue-900 border border-blue-300 text-xs font-bold px-2.5 py-1 rounded-full">✅ Selesai (25/25)</span>`;
+                    buttonHtml = `
+                        <button onclick="viewTeamSummary(${idx})" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-2xl text-base btn-game">
+                            📊 Lihat Hasil Tim
+                        </button>
+                    `;
+                } else if (answeredCount > 0) {
+                    statusBadge = `<span class="bg-orange-100 text-orange-900 border border-orange-300 text-xs font-bold px-2.5 py-1 rounded-full">⏳ Berjalan (${answeredCount}/25)</span>`;
+                    buttonHtml = `
+                        <button onclick="startTeamQuiz(${idx})" class="w-full ${cfg.colorBg} hover:opacity-95 text-white font-bold py-3 px-4 rounded-2xl text-base btn-game">
+                            ▶️ Lanjut Soal #${answeredCount + 1}
+                        </button>
+                    `;
+                } else {
+                    statusBadge = `<span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full">🆕 Siap Main</span>`;
+                    buttonHtml = `
+                        <button onclick="startTeamQuiz(${idx})" class="w-full ${cfg.colorBg} hover:opacity-95 text-white font-bold py-3 px-4 rounded-2xl text-base btn-game">
+                            🚀 Mulai Bermain
+                        </button>
+                    `;
+                }
+
+                const card = document.createElement("div");
+                card.className = `bg-white/95 rounded-3xl p-4 sm:p-5 shadow-lg border-2 ${cfg.colorBorder} flex flex-col justify-between space-y-3.5 transition hover:-translate-y-1`;
+                card.innerHTML = `
+                    <div class="space-y-2.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-2xl sm:text-3xl">${cfg.badge}</span>
+                            ${statusBadge}
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 block">Nama Tim (Klik untuk edit):</label>
+                            <input type="text" value="${team.customName}" 
+                                   onchange="renameTeam(${idx}, this.value)"
+                                   class="w-full font-bold text-lg ${cfg.colorText} bg-transparent border-b-2 border-dashed border-slate-200 focus:border-orange-500 outline-none py-0.5">
+                        </div>
+
+                        <!-- Kotak Skor Besar -->
+                        <div class="${cfg.colorLight} rounded-2xl p-3 text-center border ${cfg.colorBorder}">
+                            <span class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Skor Otomatis</span>
+                            <span class="text-4xl font-bold ${cfg.colorText}">${team.score}</span>
+                            <div class="mt-1.5 flex justify-center gap-3 text-xs font-bold">
+                                <span class="text-blue-800">✔ Benar: ${team.correctCount}</span>
+                                <span class="text-orange-700">✖ Salah: ${team.wrongCount}</span>
+                            </div>
+                        </div>
+
+                        <!-- Bar Progres -->
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+                                <span>Progres Soal</span>
+                                <span>${answeredCount} / 25</span>
+                            </div>
+                            <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                <div class="${cfg.colorBg} h-2.5 rounded-full transition-all" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-1">
+                        ${buttonHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renameTeam(teamId, newName) {
+            const trimmed = newName.trim();
+            if (trimmed) {
+                gameState.teams[teamId].customName = trimmed;
+                saveGameState();
+            }
+        }
+
+        // =========================================================================
+        // 5. LOGIKA BERMAIN KUIS & PERPINDAHAN SOAL OTOMATIS
+        // =========================================================================
+        function startTeamQuiz(teamId) {
+            playSoundEffect('click');
+            activeTeamId = teamId;
+            isTransitioning = false;
+
+            document.getElementById("screenLobby").classList.add("hidden");
+            document.getElementById("screenTeamResult").classList.add("hidden");
+            document.getElementById("screenQuiz").classList.remove("hidden");
+
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const team = gameState.teams[activeTeamId];
+            const cfg = TEAM_CONFIGS[activeTeamId];
+
+            if (team.currentIndex >= 25 || team.completed) {
+                team.completed = true;
+                saveGameState();
+                showTeamResultScreen(activeTeamId);
+                return;
+            }
+
+            const qId = team.questionOrder[team.currentIndex];
+            const questionObj = MASTER_QUESTIONS.find(item => item.id === qId);
+
+            // Update Header Quiz
+            const badgeEl = document.getElementById("quizTeamBadge");
+            badgeEl.textContent = `${cfg.badge} ${team.customName}`;
+            badgeEl.className = `px-4 py-2 rounded-2xl font-bold text-white text-lg sm:text-xl shadow ${cfg.colorBg}`;
+
+            document.getElementById("quizProgressText").textContent = `Soal ${team.currentIndex + 1} dari 25`;
+            document.getElementById("quizCurrentScore").textContent = team.score;
+            document.getElementById("quizProgressBar").style.width = `${((team.currentIndex + 1) / 25) * 100}%`;
+
+            // Update Isi Soal
+            document.getElementById("questionTopic").textContent = `📘 Topik: ${questionObj.topic}`;
+            document.getElementById("questionNumberPill").textContent = `Soal ke-${team.currentIndex + 1} / 25`;
+            document.getElementById("questionText").textContent = questionObj.q;
+
+            // Sembunyikan overlay feedback
+            document.getElementById("feedbackOverlay").classList.add("hidden");
+
+            // Render 4 Opsi Jawaban dengan huruf besar
+            const optionsContainer = document.getElementById("optionsContainer");
+            optionsContainer.innerHTML = "";
+            const letters = ["A", "B", "C", "D"];
+
+            questionObj.options.forEach((optText, optIndex) => {
+                const btn = document.createElement("button");
+                btn.className = "text-left bg-white hover:bg-orange-50 border-2 border-blue-300 hover:border-orange-500 rounded-2xl p-4 sm:p-6 transition flex items-start gap-4 shadow-sm btn-game group";
+                btn.onclick = () => handleAnswerSelection(optIndex);
+                btn.innerHTML = `
+                    <span class="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-blue-100 group-hover:bg-orange-500 group-hover:text-white text-blue-900 font-bold text-xl sm:text-2xl flex items-center justify-center border border-blue-300 transition">
+                        ${letters[optIndex]}
+                    </span>
+                    <span class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug pt-1">
+                        ${optText}
+                    </span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswerSelection(selectedOptionIndex) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            const team = gameState.teams[activeTeamId];
+            const qId = team.questionOrder[team.currentIndex];
+            const questionObj = MASTER_QUESTIONS.find(item => item.id === qId);
+
+            const isCorrect = (selectedOptionIndex === questionObj.answer);
+
+            // Hitung skor otomatis: Benar +5, Salah -1
+            if (isCorrect) {
+                team.score += 5;
+                team.correctCount += 1;
+                playSoundEffect('correct');
+            } else {
+                team.score -= 1;
+                team.wrongCount += 1;
+                playSoundEffect('wrong');
+            }
+
+            // Simpan ke riwayat untuk koreksi guru
+            team.history.push({
+                qId: qId,
+                selectedOption: selectedOptionIndex,
+                isCorrect: isCorrect
+            });
+
+            team.currentIndex += 1;
+            if (team.currentIndex >= 25) {
+                team.completed = true;
+            }
+            saveGameState();
+
+            document.getElementById("quizCurrentScore").textContent = team.score;
+
+            // Umpan balik sesaat TANPA MEMBOCORKAN JAWABAN BENAR
+            const overlay = document.getElementById("feedbackOverlay");
+            const iconEl = document.getElementById("feedbackIcon");
+            const titleEl = document.getElementById("feedbackTitle");
+            const ptsEl = document.getElementById("feedbackPoints");
+
+            if (isCorrect) {
+                iconEl.textContent = "🎉";
+                titleEl.textContent = "Jawaban Benar!";
+                titleEl.className = "text-3xl sm:text-4xl font-bold mb-2 text-blue-700";
+                ptsEl.textContent = "+5 Poin";
+                ptsEl.className = "text-2xl sm:text-3xl font-bold px-6 py-2 rounded-2xl mb-3 bg-blue-100 text-blue-900 border border-blue-300";
+            } else {
+                iconEl.textContent = "📝";
+                titleEl.textContent = "Jawaban Kurang Tepat!";
+                titleEl.className = "text-3xl sm:text-4xl font-bold mb-2 text-orange-600";
+                ptsEl.textContent = "-1 Poin (Tersimpan untuk pembahasan)";
+                ptsEl.className = "text-xl sm:text-2xl font-bold px-6 py-2 rounded-2xl mb-3 bg-orange-100 text-orange-900 border border-orange-300";
+            }
+
+            overlay.classList.remove("hidden");
+
+            // Pindah otomatis ke soal berikutnya setelah 1,25 detik
+            setTimeout(() => {
+                isTransitioning = false;
+                if (team.completed) {
+                    playSoundEffect('finish');
+                    showTeamResultScreen(activeTeamId);
+                } else {
+                    renderCurrentQuestion();
+                }
+            }, 1250);
+        }
+
+        function showTeamResultScreen(teamId) {
+            const team = gameState.teams[teamId];
+            const cfg = TEAM_CONFIGS[teamId];
+
+            document.getElementById("screenLobby").classList.add("hidden");
+            document.getElementById("screenQuiz").classList.add("hidden");
+            document.getElementById("screenTeamResult").classList.remove("hidden");
+
+            const nameEl = document.getElementById("resultTeamName");
+            nameEl.textContent = `${cfg.badge} ${team.customName}`;
+            nameEl.className = `inline-block ${cfg.colorBg} text-white px-5 py-1.5 rounded-full text-xl font-bold mb-2`;
+
+            document.getElementById("resCorrectCount").textContent = team.correctCount;
+            document.getElementById("resWrongCount").textContent = team.wrongCount;
+            document.getElementById("resTotalScore").textContent = team.score;
+        }
+
+        function viewTeamSummary(teamId) {
+            playSoundEffect('click');
+            showTeamResultScreen(teamId);
+        }
+
+        function backToLobby() {
+            playSoundEffect('click');
+            activeTeamId = null;
+            document.getElementById("screenQuiz").classList.add("hidden");
+            document.getElementById("screenTeamResult").classList.add("hidden");
+            document.getElementById("screenLobby").classList.remove("hidden");
+            renderLobby();
+        }
+
+        // =========================================================================
+        // 6. RUANG GURU TERPISAH (KUNCI JAWABAN, PEMBAHASAN & KOREKSI 8 TIM)
+        // =========================================================================
+        function openTeacherModal() {
+            playSoundEffect('click');
+            document.getElementById("teacherModal").classList.remove("hidden");
+            if (isTeacherUnlocked) {
+                document.getElementById("teacherPinScreen").classList.add("hidden");
+                document.getElementById("teacherContentScreen").classList.remove("hidden");
+                document.getElementById("teacherContentScreen").classList.add("flex");
+                renderTeacherTeamSelector();
+                renderTeacherTeamDetail(selectedTeacherTeamId);
+                renderMasterBank();
+            } else {
+                document.getElementById("teacherPinScreen").classList.remove("hidden");
+                document.getElementById("teacherContentScreen").classList.add("hidden");
+                document.getElementById("teacherPinInput").value = "";
+                document.getElementById("pinErrorMsg").classList.add("hidden");
+                setTimeout(() => document.getElementById("teacherPinInput").focus(), 100);
+            }
+        }
+
+        function closeTeacherModal() {
+            playSoundEffect('click');
+            document.getElementById("teacherModal").classList.add("hidden");
+        }
+
+        function verifyTeacherPin() {
+            const input = document.getElementById("teacherPinInput").value.trim();
+            if (input === TEACHER_PIN) {
+                isTeacherUnlocked = true;
+                playSoundEffect('correct');
+                document.getElementById("teacherPinScreen").classList.add("hidden");
+                document.getElementById("teacherContentScreen").classList.remove("hidden");
+                document.getElementById("teacherContentScreen").classList.add("flex");
+                renderTeacherTeamSelector();
+                renderTeacherTeamDetail(selectedTeacherTeamId);
+                renderMasterBank();
+            } else {
+                playSoundEffect('wrong');
+                document.getElementById("pinErrorMsg").classList.remove("hidden");
+            }
+        }
+
+        function switchTeacherTab(tabName) {
+            playSoundEffect('click');
+            const btnKoreksi = document.getElementById("tabBtnKoreksi");
+            const btnBank = document.getElementById("tabBtnBank");
+            const tabKoreksi = document.getElementById("teacherTabKoreksi");
+            const tabBank = document.getElementById("teacherTabBank");
+
+            if (tabName === 'koreksi') {
+                btnKoreksi.className = "px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base bg-white text-blue-800 border-t-2 border-x border-slate-200";
+                btnBank.className = "px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base text-slate-600 hover:text-slate-900";
+                tabKoreksi.classList.remove("hidden");
+                tabBank.classList.add("hidden");
+            } else {
+                btnBank.className = "px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base bg-white text-blue-800 border-t-2 border-x border-slate-200";
+                btnKoreksi.className = "px-4 py-2.5 rounded-t-xl font-bold text-sm sm:text-base text-slate-600 hover:text-slate-900";
+                tabBank.classList.remove("hidden");
+                tabKoreksi.classList.add("hidden");
+            }
+        }
+
+        function renderTeacherTeamSelector() {
+            const container = document.getElementById("teacherTeamSelector");
+            container.innerHTML = "";
+            gameState.teams.forEach((team, idx) => {
+                const cfg = TEAM_CONFIGS[idx];
+                const isSelected = (idx === selectedTeacherTeamId);
+                const btn = document.createElement("button");
+                btn.className = isSelected 
+                    ? `${cfg.colorBg} text-white px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm shadow`
+                    : `bg-white text-slate-700 border border-slate-300 hover:bg-orange-50 px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm`;
+                btn.textContent = `${team.customName} (${team.score})`;
+                btn.onclick = () => {
+                    selectedTeacherTeamId = idx;
+                    renderTeacherTeamSelector();
+                    renderTeacherTeamDetail(idx);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderTeacherTeamDetail(teamId) {
+            const container = document.getElementById("teacherTeamDetailContainer");
+            const team = gameState.teams[teamId];
+            const letters = ["A", "B", "C", "D"];
+
+            container.innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-blue-200 flex flex-wrap justify-between items-center gap-3">
+                    <div>
+                        <h4 class="text-xl font-bold text-blue-950">Lembar Koreksi: ${team.customName}</h4>
+                        <p class="text-sm text-slate-600">Terjawab: <strong>${team.history.length} / 25 soal</strong> • Benar: <strong class="text-blue-700">${team.correctCount}</strong> • Salah: <strong class="text-orange-600">${team.wrongCount}</strong></p>
+                    </div>
+                    <div class="bg-orange-100 text-orange-950 border border-orange-300 px-4 py-2 rounded-xl font-bold text-lg">
+                        Total Skor: ${team.score} Poin
+                    </div>
+                </div>
+            `;
+
+            team.questionOrder.forEach((qId, urutan) => {
+                const qObj = MASTER_QUESTIONS.find(item => item.id === qId);
+                const attempt = team.history.find(h => h.qId === qId);
+
+                let statusHtml = `<span class="bg-slate-200 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold">Belum Dijawab</span>`;
+                let userChoiceHtml = `<p class="text-sm text-slate-500 italic">Tim belum menjawab soal ini.</p>`;
+                let cardBorder = "border-slate-200";
+
+                if (attempt) {
+                    if (attempt.isCorrect) {
+                        statusHtml = `<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold">✅ BENAR (+5 Poin)</span>`;
+                        cardBorder = "border-blue-300";
+                    } else {
+                        statusHtml = `<span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-xs font-bold">❌ SALAH (-1 Poin)</span>`;
+                        cardBorder = "border-orange-300";
+                    }
+                    userChoiceHtml = `
+                        <p class="text-sm font-bold ${attempt.isCorrect ? 'text-blue-800' : 'text-orange-700'}">
+                            Jawaban Tim: (${letters[attempt.selectedOption]}) ${qObj.options[attempt.selectedOption]}
+                        </p>
+                    `;
+                }
+
+                const card = document.createElement("div");
+                card.className = `bg-white rounded-2xl p-4 sm:p-5 border-2 ${cardBorder} shadow-sm space-y-2`;
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="font-bold text-slate-700 text-sm">Soal Urutan #${urutan + 1} (ID Bank #${qObj.id} • ${qObj.topic})</span>
+                        ${statusHtml}
+                    </div>
+                    <p class="font-bold text-base sm:text-lg text-slate-900">${qObj.q}</p>
+                    ${userChoiceHtml}
+                    <div class="bg-blue-50/80 border border-blue-200 rounded-xl p-3 space-y-1">
+                        <p class="text-sm font-bold text-blue-950">
+                            🔑 Kunci Jawaban: (${letters[qObj.answer]}) ${qObj.options[qObj.answer]}
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            <strong>💡 Pembahasan:</strong> ${qObj.explanation}
+                        </p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMasterBank() {
+            const filterVal = document.getElementById("filterBankTeam").value;
+            const container = document.getElementById("masterBankContainer");
+            const letters = ["A", "B", "C", "D"];
+            container.innerHTML = "";
+
+            const filtered = filterVal === "all" 
+                ? MASTER_QUESTIONS 
+                : MASTER_QUESTIONS.filter(q => q.teamPool === parseInt(filterVal, 10));
+
+            filtered.forEach(qObj => {
+                const card = document.createElement("div");
+                card.className = "bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2";
+                card.innerHTML = `
+                    <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold">
+                        <span class="bg-orange-100 text-orange-900 px-2.5 py-1 rounded-lg">Paket Tim ${qObj.teamPool + 1} • Soal #${qObj.id}</span>
+                        <span class="text-blue-800">${qObj.topic}</span>
+                    </div>
+                    <p class="font-bold text-base sm:text-lg text-slate-900">${qObj.q}</p>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm">
+                        ${qObj.options.map((opt, idx) => `
+                            <li class="px-3 py-1.5 rounded-lg ${idx === qObj.answer ? 'bg-blue-100 text-blue-950 font-bold border border-blue-300' : 'bg-slate-50 text-slate-700'}">
+                                ${letters[idx]}. ${opt} ${idx === qObj.answer ? '✅' : ''}
+                            </li>
+                        `).join("")}
+                    </ul>
+                    <p class="text-sm text-slate-700 bg-orange-50 p-2.5 rounded-xl border border-orange-200">
+                        <strong>💡 Pembahasan:</strong> ${qObj.explanation}
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Salin laporan nilai ke clipboard menggunakan document.execCommand('copy')
+        function exportReportText() {
+            let report = "REKAP NILAI KUIS INTERAKTIF 8 TIM IPA KELAS 7 - GERAK & GAYA\n";
+            report += "Guru: Ibu Siti Fatimah, S.Pd | MTsN 1 Kota Malang\n";
+            report += "============================================================\n\n";
+
+            gameState.teams.forEach(t => {
+                report += `${t.customName}\n`;
+                report += `- Progres: ${t.history.length}/25 soal\n`;
+                report += `- Benar (+5): ${t.correctCount} | Salah (-1): ${t.wrongCount}\n`;
+                report += `- TOTAL SKOR: ${t.score} Poin\n\n`;
+            });
+
+            const textArea = document.createElement("textarea");
+            textArea.value = report;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand("copy");
+                showCustomDialog("📋", "Laporan Tersalin!", "Rekap skor dan koreksi seluruh 8 tim berhasil disalin. Silakan tempel (Paste) di WhatsApp atau dokumen nilai.", [
+                    { text: "Oke, Mengerti", class: "bg-blue-700 text-white", action: closeCustomDialog }
+                ]);
+            } catch (err) {
+                showCustomDialog("⚠️", "Gagal Menyalin", "Tidak dapat menyalin otomatis pada peramban ini.", [
+                    { text: "Tutup", class: "bg-slate-600 text-white", action: closeCustomDialog }
+                ]);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // =========================================================================
+        // 7. DIALOG KUSTOM & RESET DATA
+        // =========================================================================
+        function showCustomDialog(icon, title, message, buttons) {
+            document.getElementById("dialogIcon").textContent = icon;
+            document.getElementById("dialogTitle").textContent = title;
+            document.getElementById("dialogMessage").textContent = message;
+
+            const actionsContainer = document.getElementById("dialogActions");
+            actionsContainer.innerHTML = "";
+            buttons.forEach(btn => {
+                const el = document.createElement("button");
+                el.className = `${btn.class} px-5 py-2.5 rounded-xl font-bold text-base shadow btn-game`;
+                el.textContent = btn.text;
+                el.onclick = btn.action;
+                actionsContainer.appendChild(el);
+            });
+
+            document.getElementById("customDialog").classList.remove("hidden");
+        }
+
+        function closeCustomDialog() {
+            document.getElementById("customDialog").classList.add("hidden");
+        }
+
+        function confirmResetAll() {
+            showCustomDialog(
+                "🔄",
+                "Reset Seluruh 8 Tim?",
+                "Semua skor dari 8 tim akan kembali ke 0 dan 25 soal tiap tim akan diacak ulang dari awal. Lanjutkan?",
+                [
+                    { text: "Batal", class: "bg-slate-200 text-slate-800", action: closeCustomDialog },
+                    {
+                        text: "Ya, Reset Sekarang",
+                        class: "bg-orange-600 text-white",
+                        action: () => {
+                            gameState = createInitialGameState();
+                            saveGameState();
+                            closeCustomDialog();
+                            backToLobby();
+                            playSoundEffect('click');
+                        }
+                    }
+                ]
+            );
+        }
+
+        // Inisialisasi Aplikasi saat halaman dimuat
+        window.onload = function() {
+            loadGameState();
+            renderLobby();
+        };
+    </script>
+</body>
+</html>
